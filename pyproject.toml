@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ae-arch-engine"
+version = "1.1.0"
+description = "Python SDK and SLM 3B Bridge for AE Arch Engine (AE::mind1_v1.1_Stable)"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Andrey Firstov (IU5 BMSTU)", email = "firstovandre800@gmail.com" }
+]
+
+[tool.setuptools.packages.find]
+where = ["bindings"]
