@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/ae_tests.dir/link.d CMakeFiles/ae_tests.dir/tests/test_ae_core.cpp.o -o ae_tests  libae_mind1_core.a

@@ -1,6 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include "ae/engine_pipeline.hpp"
+#include "../include/engine_pipeline.hpp"
 
 namespace py = pybind11;
 using namespace ae::mind1;

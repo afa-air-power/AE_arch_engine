@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/ae_bench.dir/link.d CMakeFiles/ae_bench.dir/src/main_bench.cpp.o -o ae_bench  libae_mind1_core.a
