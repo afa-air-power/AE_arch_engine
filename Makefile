@@ -10,7 +10,7 @@ SHARED_LIB = $(BUILD_DIR)/libae_mind1.so
 BENCH_BIN  = $(BUILD_DIR)/ae_bench
 TEST_BIN   = $(BUILD_DIR)/ae_tests
 
-SRCS_LIB   = src/lang_parser.cpp lang/en/parser.cpp lang/ru/parser.cpp src/engine_pipeline.cpp src/ae_c_api.cpp
+SRCS_LIB   = src/lang_parser.cpp lang/humans/en/parser.cpp lang/humans/ru/parser.cpp lang/programing/parser.cpp src/engine_pipeline.cpp src/ae_c_api.cpp
 
 .PHONY: all clean test bench
 

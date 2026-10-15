@@ -1,4 +1,6 @@
 #include "../include/ae_c_api.h"
+#include "../include/lang/interface.hpp"
+#include "../include/programing/parser.hpp"
 #include "../lang/humans/parser.hpp"
 #include "../include/engine_pipeline.hpp"
 #include <../lang/humans/en/parser.hpp>
@@ -14,8 +16,12 @@ int main() {
     ae::lang::ru::Parser russian_parser;
     ae::lang::en::Parser english_parser;
     ae::lang::Parser* parser_route = ae::lang::select_parser("переподключение");
+    ae::lang::human::Interface* human_interface =
+        ae::lang::select_parser(ae::lang::LanguageFamily::HUMAN, "переподключение");
     auto russian_morphology = russian_parser.parse("переподключение");
     auto routed_morphology = parser_route->parse("переподключение");
+    assert(human_interface != nullptr);
+    assert(human_interface->family() == ae::lang::LanguageFamily::HUMAN);
     assert(parser_route->language() == ae::lang::Language::RUSSIAN);
     assert(russian_morphology.morphemes.size() >= 3);
     assert(routed_morphology.morphemes.size() == russian_morphology.morphemes.size());
@@ -32,6 +38,28 @@ int main() {
     assert(english_morphology.morphemes[3].text == "cat");
     assert(english_morphology.morphemes[3].end == 13);
     assert(english_morphology.morphemes[4].text == "s");
+
+    ae::lang::programing::Parser programming_parser;
+    ae::lang::LanguageInterface* language_interface = &programming_parser;
+    const auto* selected_programming_parser = ae::lang::select_parser(
+        ae::lang::LanguageFamily::PROGRAMMING, "int main() {}");
+    assert(selected_programming_parser != nullptr);
+    assert(selected_programming_parser->family() ==
+           ae::lang::LanguageFamily::PROGRAMMING);
+    assert(ae::lang::select_parser(
+               ae::lang::LanguageFamily::SCIENCE, "E = mc^2") == nullptr);
+    const auto program = language_interface->parse(
+        "int add(int a, int b) { return a + b; }");
+    assert(language_interface->family() == ae::lang::LanguageFamily::PROGRAMMING);
+    assert(program.family == ae::lang::LanguageFamily::PROGRAMMING);
+    assert(program.meaning_tree.kind == ae::lang::MeaningKind::PROGRAM);
+    assert(program.meaning_tree.children.size() == 1);
+    const auto& function = program.meaning_tree.children.front();
+    assert(function.kind == ae::lang::MeaningKind::FUNCTION);
+    assert(function.text == "int add ( int a , int b )");
+    assert(function.begin == 0);
+    assert(function.children.back().kind == ae::lang::MeaningKind::BLOCK);
+    assert(function.children.back().children.front().kind == ae::lang::MeaningKind::STATEMENT);
 
     AEEnginePipeline pipeline(1000, 6);
     const InferenceResult parsed_inference = pipeline.infer("replaying graph", 42, false);

@@ -21,8 +21,9 @@ find_package(Threads REQUIRED)
 
 add_library(ae_mind1_core STATIC
     src/lang_parser.cpp
-    lang/en/parser.cpp
-    lang/ru/parser.cpp
+        include/lang/humans/en/parser.cpp
+        include/lang/humans/ru/parser.cpp
+        include/lang/lang/programing/parser.cpp
     src/engine_pipeline.cpp
     src/ae_c_api.cpp
 )
@@ -40,8 +41,9 @@ endif()
 if(AE_BUILD_SHARED)
     add_library(ae_mind1 SHARED
         src/lang_parser.cpp
-        lang/en/parser.cpp
-        lang/ru/parser.cpp
+            include/lang/humans/en/parser.cpp
+            include/lang/humans/ru/parser.cpp
+            include/lang/lang/programing/parser.cpp
         src/engine_pipeline.cpp
         src/ae_c_api.cpp
     )

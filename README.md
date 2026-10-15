@@ -13,9 +13,12 @@ AE_Arch_Engine/
 ├── pyproject.toml                  # Метаданные Python-пакета обвязки
 ├── README.md                       # Документация по сборке и API
 ├── include/
-│   ├── ae/lang/                    # Общий API морфемного парсера и языковые типы
-│   │   ├── en/parser.hpp           # API английского парсера
-│   │   └── ru/parser.hpp           # API русского парсера
+│   ├── ae/lang/                    # Общий интерфейс и типы языковых деревьев
+│   │   ├── parser.hpp              # LanguageInterface, ParseResult, MeaningNode
+│   │   ├── interface.hpp           # Общие адаптеры human/sience/verbal/programing
+│   │   ├── en/parser.hpp           # API английского морфемного парсера
+│   │   ├── ru/parser.hpp           # API русского морфемного парсера
+│   │   └── programing/parser.hpp   # API дерева разбора исходного кода
 │   ├── taylor_intent_kernel.hpp    # Модуль 3.1: Taylor-Intent Kernel (150 нейронов, полиномы Тейлора 5-го порядка)
 │   ├── morphemic_trie.hpp          # Модуль 3.2: Morphemic Patricia Trie и 64-битная булева маска сочетаемости
 │   ├── mega_rag_centroid.hpp       # Модуль 3.3: Mega RAG (CSR в mmap + Центроидная декомпозиция за O(log N))
@@ -30,8 +33,8 @@ AE_Arch_Engine/
 │   ├── ae_c_api.cpp                # Экспортируемые функции разделяемой библиотеки libae_mind1.so
 │   └── main_bench.cpp              # CLI-бенчмарк производительности (ae_bench)
 ├── lang/
-│   ├── en/parser.cpp              # Разбор английских префиксов, корней и окончаний
-│   └── ru/parser.cpp              # Разбор русских приставок, корней и окончаний
+│   ├── humans/                    # Разбор русских и английских морфем
+│   └── programing/parser.cpp      # Лексико-синтаксическое дерево программного кода
 ├── bindings/
 │   ├── ae_engine.py                # Python SDK (AEArchEngine) поверх libae_mind1.so (без внешних зависимостей)
 │   ├── slm_bridge.py               # Оркестратор верифицированного AST-промпта для локальной SLM 1.5B–3B
@@ -63,3 +66,17 @@ make all
 make test
 make bench
 ```
+
+## Общий интерфейс языков
+
+`ae::lang::LanguageInterface` — единый интерфейс `parse`, `language` и `family`;
+результат содержит морфемы (для human-языков) и общий `MeaningNode` для
+древовидного представления. Один интерфейс доступен из пространств имён
+`ae::lang::human`, `ae::lang::sience`, `ae::lang::verbal` и
+`ae::lang::programing`. Программный парсер строит дерево программы, функций,
+блоков, объявлений, управляющих конструкций и лексических узлов.
+
+`ae::lang::select_parser(family, text)` выбирает парсер по семейству; для
+`SCIENCE` и `VERBAL` возвращается `nullptr`, пока эти семейства не получат
+реализацию. Одноаргументный `select_parser(text)` остаётся совместимым
+маршрутизатором русского/английского human-парсера.

@@ -62,7 +62,8 @@ ParseResult parse_words(
     Language language,
     const std::array<Affix, PrefixCount>& prefixes,
     const std::array<Affix, SuffixCount>& suffixes) {
-    ParseResult result{language, {}};
+    ParseResult result{};
+    result.language = language;
     std::size_t cursor = 0;
 
     while (cursor < text.size()) {
