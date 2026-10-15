@@ -19,7 +19,7 @@ static double get_current_rss_mb() {
 }
 
 int main() {
-    using namespace ae::mind1;
+    using namespace ae::mind;
     using namespace std::chrono;
 
     std::cout << "================================================================================\n";

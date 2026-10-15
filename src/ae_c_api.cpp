@@ -6,7 +6,7 @@
 #include <string>
 
 struct AEEngineHandle {
-    std::unique_ptr<ae::mind1::AEEnginePipeline> pipeline;
+    std::unique_ptr<ae::mind::AEEnginePipeline> pipeline;
     std::string last_ast;
     std::string last_trace;
 };
@@ -15,7 +15,7 @@ extern "C" {
 
 AEEngineHandle* ae_engine_create(int32_t rag_nodes, int32_t rag_avg_degree) {
     auto* h = new AEEngineHandle();
-    h->pipeline = std::make_unique<ae::mind1::AEEnginePipeline>(rag_nodes, rag_avg_degree);
+    h->pipeline = std::make_unique<ae::mind::AEEnginePipeline>(rag_nodes, rag_avg_degree);
     return h;
 }
 
@@ -29,7 +29,7 @@ void ae_engine_add_morpheme(AEEngineHandle* handle,
                             uint8_t morpheme_type,
                             uint64_t compatibility_mask) {
     if (!handle || !word) return;
-    auto type = static_cast<ae::mind1::MorphemicPatriciaTrie::MorphemeType>(morpheme_type & 0x3);
+    auto type = static_cast<ae::mind::MorphemicPatriciaTrie::MorphemeType>(morpheme_type & 0x3);
     handle->pipeline->add_morpheme(word, morpheme_id, type, compatibility_mask);
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 // ============================================================================
-// AE Arch Engine (AE::mind1_v1.1_Stable)
+// AE Arch Engine (AE::mind_v1.1_Stable)
 // Module 4: Thought Graph Topology (Kruskal DSU + BINUP LCA + Dynamic Reroot)
 // Author: Andrey Firstov (IU5 BMSTU)
 // ============================================================================
@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-namespace ae::mind1 {
+namespace ae::mind {
 
 struct ThoughtGraphTopology {
     struct Edge {
@@ -140,4 +140,4 @@ struct ThoughtGraphTopology {
     }
 };
 
-} // namespace ae::mind1
+} // namespace ae::mind

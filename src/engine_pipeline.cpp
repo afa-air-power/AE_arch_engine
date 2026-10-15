@@ -4,7 +4,7 @@
 #include <future>
 #include <random>
 
-namespace ae::mind1 {
+namespace ae::mind {
 
 AEEnginePipeline::AEEnginePipeline(int rag_nodes, int rag_avg_degree)
     : intent_kernel_(42),

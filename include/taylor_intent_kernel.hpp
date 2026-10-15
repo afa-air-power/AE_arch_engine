@@ -1,6 +1,6 @@
 #pragma once
 // ============================================================================
-// AE Arch Engine (AE::mind1_v1.1_Stable)
+// AE Arch Engine (AE::mind_v1.1_Stable)
 // Module 3.1: Taylor-Intent Kernel (150 neurons, 5th-order Taylor polynomials)
 // Author: Andrey Firstov (IU5 BMSTU)
 // ============================================================================
@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <random>
 
-namespace ae::mind1 {
+namespace ae::mind {
 
 struct TaylorIntentKernel {
     static constexpr std::size_t INPUT_DIM = 32;
@@ -96,4 +96,4 @@ struct TaylorIntentKernel {
     }
 };
 
-} // namespace ae::mind1
+} // namespace ae::mind

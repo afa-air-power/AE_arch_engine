@@ -1,6 +1,6 @@
 #pragma once
 // ============================================================================
-// AE Arch Engine (AE::mind1_v1.1_Stable)
+// AE Arch Engine (AE::mind_v1.1_Stable)
 // Module 3.3: Mega RAG & Centroid Decomposition (mmap CSR + O(log N) search)
 // Author: Andrey Firstov (IU5 BMSTU)
 // ============================================================================
@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-namespace ae::mind1 {
+namespace ae::mind {
 
 struct KnowledgeEdge {
     int to;
@@ -159,4 +159,4 @@ struct MegaRAGCentroidGraph {
     }
 };
 
-} // namespace ae::mind1
+} // namespace ae::mind

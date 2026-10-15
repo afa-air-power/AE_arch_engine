@@ -1,6 +1,6 @@
 #pragma once
 // ============================================================================
-// AE Arch Engine (AE::mind1_v1.1_Stable)
+// AE Arch Engine (AE::mind_v1.1_Stable)
 // Modules 3.5 & 6: Async Time-Ray Smoothing + Verified AST-Prompt Compiler
 // Author: Andrey Firstov (IU5 BMSTU)
 // ============================================================================
@@ -16,7 +16,7 @@
 #include <string_view>
 #include <vector>
 
-namespace ae::mind1 {
+namespace ae::mind {
 
 struct TimeRayReport {
     double forward_cascade_score = 0.0;
@@ -78,7 +78,7 @@ inline ASTPromptResult compile_verified_ast_prompt(
     const ThoughtGraphTopology& tg) {
     std::ostringstream oss;
     oss << "(AE_VERIFIED_AST_V1.1\n"
-        << "  (META :engine \"AE::mind1_v1.1_Stable\" :hallucination_guard \"STRICT_BOOLEAN_MASK\"\n"
+        << "  (META :engine \"AE::mind_v1.1_Stable\" :hallucination_guard \"STRICT_BOOLEAN_MASK\"\n"
         << "        :target_slm \"Local-SLM-3B-Instruct\" :centroid_cluster_id " << centroid_id
         << " :centroid_hops " << centroid_hops << ")\n"
         << "  (QUERY_INTENT :raw \"" << query << "\"\n"
@@ -120,4 +120,4 @@ inline ASTPromptResult compile_verified_ast_prompt(
     return {text, est_tokens, trace.str()};
 }
 
-} // namespace ae::mind1
+} // namespace ae::mind

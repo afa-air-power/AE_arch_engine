@@ -1,6 +1,6 @@
 #pragma once
 // ============================================================================
-// AE Arch Engine (AE::mind1_v1.1_Stable)
+// AE Arch Engine (AE::mind_v1.1_Stable)
 // Module 3.2: Morphemic Tokenizer Compiler (Patricia Trie + 64-bit Boolean Mask)
 // Author: Andrey Firstov (IU5 BMSTU)
 // ============================================================================
@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-namespace ae::mind1 {
+namespace ae::mind {
 
 struct MorphemicPatriciaTrie {
     enum class MorphemeType : std::uint8_t {
@@ -158,4 +158,4 @@ struct MorphemicPatriciaTrie {
     }
 };
 
-} // namespace ae::mind1
+} // namespace ae::mind

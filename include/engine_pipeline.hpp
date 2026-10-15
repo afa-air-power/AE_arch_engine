@@ -1,6 +1,6 @@
 #pragma once
 // ============================================================================
-// AE Arch Engine (AE::mind1_v1.1_Stable)
+// AE Arch Engine (AE::mind_v1.1_Stable)
 // Unified End-to-End Inference Pipeline
 // Author: Andrey Firstov (IU5 BMSTU)
 // ============================================================================
@@ -18,7 +18,7 @@
 #include <string_view>
 #include <vector>
 
-namespace ae::mind1 {
+namespace ae::mind {
 
 struct InferenceResult {
     std::array<float, TaylorIntentKernel::INTENT_DIM> intent_vector{};
@@ -59,4 +59,4 @@ private:
     int sink_node_ = DEFAULT_SUBGRAPH_NODES - 1;
 };
 
-} // namespace ae::mind1
+} // namespace ae::mind

@@ -6,7 +6,7 @@
 #include <iostream>
 
 int main() {
-    using namespace ae::mind1;
+    using namespace ae::mind;
 
     TaylorIntentKernel kernel;
     std::array<float, TaylorIntentKernel::INPUT_DIM> x{};

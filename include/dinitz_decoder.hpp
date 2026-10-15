@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace ae::mind1 {
+namespace ae::mind {
 
 struct DinitzGraphDecoder {
     static constexpr int MAX_V = 128;
