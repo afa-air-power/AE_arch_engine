@@ -13,6 +13,9 @@ AE_Arch_Engine/
 ├── pyproject.toml                  # Метаданные Python-пакета обвязки
 ├── README.md                       # Документация по сборке и API
 ├── include/
+│   ├── ae/lang/                    # Общий API морфемного парсера и языковые типы
+│   │   ├── en/parser.hpp           # API английского парсера
+│   │   └── ru/parser.hpp           # API русского парсера
 │   ├── taylor_intent_kernel.hpp    # Модуль 3.1: Taylor-Intent Kernel (150 нейронов, полиномы Тейлора 5-го порядка)
 │   ├── morphemic_trie.hpp          # Модуль 3.2: Morphemic Patricia Trie и 64-битная булева маска сочетаемости
 │   ├── mega_rag_centroid.hpp       # Модуль 3.3: Mega RAG (CSR в mmap + Центроидная декомпозиция за O(log N))
@@ -22,9 +25,13 @@ AE_Arch_Engine/
 │   ├── engine_pipeline.hpp         # Единый высокоуровневый конвейер AEEnginePipeline
 │   └── ae_c_api.h                  # Чистый C ABI интерфейс (extern "C") для FFI (Python ctypes, Rust, Go)
 ├── src/
+│   ├── lang_parser.cpp            # Определение языка и маршрутизация к парсеру
 │   ├── engine_pipeline.cpp         # Реализация сквозного конвейера AEEnginePipeline
 │   ├── ae_c_api.cpp                # Экспортируемые функции разделяемой библиотеки libae_mind1.so
 │   └── main_bench.cpp              # CLI-бенчмарк производительности (ae_bench)
+├── lang/
+│   ├── en/parser.cpp              # Разбор английских префиксов, корней и окончаний
+│   └── ru/parser.cpp              # Разбор русских приставок, корней и окончаний
 ├── bindings/
 │   ├── ae_engine.py                # Python SDK (AEArchEngine) поверх libae_mind1.so (без внешних зависимостей)
 │   ├── slm_bridge.py               # Оркестратор верифицированного AST-промпта для локальной SLM 1.5B–3B

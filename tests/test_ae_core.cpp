@@ -1,5 +1,8 @@
 #include "../include/ae_c_api.h"
+#include "../lang/humans/parser.hpp"
 #include "../include/engine_pipeline.hpp"
+#include <../lang/humans/en/parser.hpp>
+#include <../lang/humans/ru/parser.hpp>
 
 #include <cassert>
 #include <cmath>
@@ -7,6 +10,32 @@
 
 int main() {
     using namespace ae::mind;
+
+    ae::lang::ru::Parser russian_parser;
+    ae::lang::en::Parser english_parser;
+    ae::lang::Parser* parser_route = ae::lang::select_parser("переподключение");
+    auto russian_morphology = russian_parser.parse("переподключение");
+    auto routed_morphology = parser_route->parse("переподключение");
+    assert(parser_route->language() == ae::lang::Language::RUSSIAN);
+    assert(russian_morphology.morphemes.size() >= 3);
+    assert(routed_morphology.morphemes.size() == russian_morphology.morphemes.size());
+    assert(russian_morphology.morphemes.front().type == ae::lang::MorphemeType::PREFIX);
+    assert(russian_morphology.morphemes.front().text == "пере");
+    assert(russian_morphology.morphemes.back().text == "ение");
+    assert(ae::lang::select_parser("replaying trees")->language() ==
+           ae::lang::Language::ENGLISH);
+    auto english_morphology = english_parser.parse("replaying cats");
+    assert(english_morphology.morphemes.size() == 5);
+    assert(english_morphology.morphemes[0].text == "re");
+    assert(english_morphology.morphemes[1].text == "play");
+    assert(english_morphology.morphemes[2].type == ae::lang::MorphemeType::INFLECTION);
+    assert(english_morphology.morphemes[3].text == "cat");
+    assert(english_morphology.morphemes[3].end == 13);
+    assert(english_morphology.morphemes[4].text == "s");
+
+    AEEnginePipeline pipeline(1000, 6);
+    const InferenceResult parsed_inference = pipeline.infer("replaying graph", 42, false);
+    assert(parsed_inference.morphology.language == ae::lang::Language::ENGLISH);
 
     TaylorIntentKernel kernel;
     std::array<float, TaylorIntentKernel::INPUT_DIM> x{};

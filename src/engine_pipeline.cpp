@@ -61,6 +61,7 @@ InferenceResult AEEnginePipeline::infer(std::string_view query,
     auto t0 = high_resolution_clock::now();
 
     InferenceResult res{};
+    res.morphology = lang::select_parser(query)->parse(query);
     std::array<float, TaylorIntentKernel::INPUT_DIM> features{};
     for (std::size_t i = 0; i < features.size(); ++i) {
         char c = query.empty() ? 0 : query[i % query.size()];

@@ -20,6 +20,9 @@ option(AE_ENABLE_NATIVE_OPT "Enable -O3 -march=native CPU optimizations" ON)
 find_package(Threads REQUIRED)
 
 add_library(ae_mind1_core STATIC
+    src/lang_parser.cpp
+    lang/en/parser.cpp
+    lang/ru/parser.cpp
     src/engine_pipeline.cpp
     src/ae_c_api.cpp
 )
@@ -36,6 +39,9 @@ endif()
 
 if(AE_BUILD_SHARED)
     add_library(ae_mind1 SHARED
+        src/lang_parser.cpp
+        lang/en/parser.cpp
+        lang/ru/parser.cpp
         src/engine_pipeline.cpp
         src/ae_c_api.cpp
     )

@@ -1,0 +1,24 @@
+
+# Consider dependencies only in project.
+set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
+
+# The set of languages for which implicit dependencies are needed:
+set(CMAKE_DEPENDS_LANGUAGES
+  )
+
+# The set of dependency files which are needed:
+set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/afa/CLionProjects/AE_Arch_Engine.worktrees/copilot-worktree-2026-10-15T12-15-50-71845091-d355-4c56-ba02-69bc8f6d84ea/src/main_bench.cpp" "CMakeFiles/ae_bench.dir/src/main_bench.cpp.o" "gcc" "CMakeFiles/ae_bench.dir/src/main_bench.cpp.o.d"
+  "" "ae_bench" "gcc" "CMakeFiles/ae_bench.dir/link.d"
+  )
+
+# Targets to which this target links which contain Fortran sources.
+set(CMAKE_Fortran_TARGET_LINKED_INFO_FILES
+  )
+
+# Targets to which this target links which contain Fortran sources.
+set(CMAKE_Fortran_TARGET_FORWARD_LINKED_INFO_FILES
+  )
+
+# Fortran module output directory.
+set(CMAKE_Fortran_TARGET_MODULE_DIR "")

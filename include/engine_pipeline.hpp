@@ -6,6 +6,7 @@
 // ============================================================================
 
 #include "../include/dinitz_decoder.hpp"
+#include "../lang/humans/parser.hpp"
 #include "../include/mega_rag_centroid.hpp"
 #include "../include/morphemic_trie.hpp"
 #include "../include/taylor_intent_kernel.hpp"
@@ -22,6 +23,7 @@ namespace ae::mind {
 
 struct InferenceResult {
     std::array<float, TaylorIntentKernel::INTENT_DIM> intent_vector{};
+    lang::ParseResult morphology;
     std::uint64_t morpheme_mask = 0;
     int matched_morphemes = 0;
     int centroid_id = 0;

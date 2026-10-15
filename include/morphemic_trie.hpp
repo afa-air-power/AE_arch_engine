@@ -31,7 +31,7 @@ struct MorphemicPatriciaTrie {
     };
 
     std::vector<Node> nodes;
-    std::vector<std::string> dictioffddnary;
+    std::vector<std::string> dictionary;
 
     MorphemicPatriciaTrie() {
         nodes.push_back(Node{"", -1, MorphemeType::ROOT, 0, {}});
