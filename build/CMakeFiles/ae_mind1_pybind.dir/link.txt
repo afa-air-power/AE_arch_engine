@@ -1,1 +1,0 @@
-/usr/bin/c++ -fPIC -O3 -DNDEBUG -shared -flto=auto -Wl,--dependency-file=CMakeFiles/ae_mind1_pybind.dir/link.d  -o ae_mind1_pybind.cpython-314-x86_64-linux-gnu.so CMakeFiles/ae_mind1_pybind.dir/bindings/pybind_module.cpp.o  libae_mind1_core.a

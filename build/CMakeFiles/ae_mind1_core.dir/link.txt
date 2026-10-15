@@ -1,2 +1,0 @@
-/usr/bin/ar qc libae_mind1_core.a CMakeFiles/ae_mind1_core.dir/src/engine_pipeline.cpp.o CMakeFiles/ae_mind1_core.dir/src/ae_c_api.cpp.o
-/usr/bin/ranlib libae_mind1_core.a
