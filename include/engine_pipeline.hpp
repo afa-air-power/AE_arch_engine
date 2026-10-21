@@ -6,7 +6,7 @@
 // ============================================================================
 
 #include "../include/dinitz_decoder.hpp"
-#include "../lang/humans/parser.hpp"
+#include "../include/lang/humans/parser.hpp"
 #include "../include/mega_rag_centroid.hpp"
 #include "../include/morphemic_trie.hpp"
 #include "../include/taylor_intent_kernel.hpp"
