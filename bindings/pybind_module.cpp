@@ -3,10 +3,10 @@
 #include "../include/engine_pipeline.hpp"
 
 namespace py = pybind11;
-using namespace ae::mind1;
+using namespace ae::mind;
 
-PYBIND11_MODULE(ae_mind1_pybind, m) {
-    m.doc() = "AE Arch Engine (AE::mind1_v1.1_Stable) C++23 native pybind11 bindings";
+PYBIND11_MODULE(ae_mind_pybind, m) {
+    m.doc() = "AE Arch Engine (AE::mind_v1.1_Stable) C++23 native pybind11 bindings";
 
     py::class_<TimeRayReport>(m, "TimeRayReport")
         .def_readonly("forward_cascade_score", &TimeRayReport::forward_cascade_score)

@@ -1,8 +1,8 @@
-#include "../include/lang/humans/parser.hpp"
+#include "lang/parser.hpp"
 
-#include "../include/lang/humans/en/parser.hpp"
-#include "../include/lang/programing/parser.hpp"
-#include "../include/lang/humans/ru/parser.hpp"
+#include "lang/en/parser.hpp"
+#include "lang/programing/parser.hpp"
+#include "lang/ru/parser.hpp"
 
 namespace ae::lang {
 namespace {

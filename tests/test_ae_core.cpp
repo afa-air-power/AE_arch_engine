@@ -1,10 +1,10 @@
-#include "../include/ae_c_api.h"
-#include "../include/lang/interface.hpp"
-#include "../include/programing/parser.hpp"
-#include "../lang/humans/parser.hpp"
-#include "../include/engine_pipeline.hpp"
-#include <../lang/humans/en/parser.hpp>
-#include <../lang/humans/ru/parser.hpp>
+#include "ae_c_api.h"
+#include "engine_pipeline.hpp"
+#include "lang/en/parser.hpp"
+#include "lang/interface.hpp"
+#include "lang/parser.hpp"
+#include "lang/programing/parser.hpp"
+#include "lang/ru/parser.hpp"
 
 #include <cassert>
 #include <cmath>
@@ -20,6 +20,11 @@ int main() {
         ae::lang::select_parser(ae::lang::LanguageFamily::HUMAN, "переподключение");
     auto russian_morphology = russian_parser.parse("переподключение");
     auto routed_morphology = parser_route->parse("переподключение");
+    const auto neuro_morphology =
+        russian_parser.parse("нейрокомпьютерная архитектура распределённого графа");
+    assert(neuro_morphology.morphemes.size() >= 8);
+    assert(neuro_morphology.morphemes.front().text == "нейро");
+    assert(neuro_morphology.morphemes.front().type == ae::lang::MorphemeType::PREFIX);
     assert(human_interface != nullptr);
     assert(human_interface->family() == ae::lang::LanguageFamily::HUMAN);
     assert(parser_route->language() == ae::lang::Language::RUSSIAN);
@@ -65,6 +70,29 @@ int main() {
     const InferenceResult parsed_inference = pipeline.infer("replaying graph", 42, false);
     assert(parsed_inference.morphology.language == ae::lang::Language::ENGLISH);
 
+    // Путь, который печатает AST, обязан быть настоящим путём в остовном дереве.
+    const auto& tg = pipeline.thought_graph();
+    assert(!parsed_inference.optimal_path.empty());
+    assert(parsed_inference.optimal_path.front() == 0);
+    assert(parsed_inference.optimal_path.back() ==
+           AEEnginePipeline::DEFAULT_SUBGRAPH_NODES - 1);
+    assert(parsed_inference.path_bottleneck > 0);
+    for (std::size_t i = 1; i < parsed_inference.optimal_path.size(); ++i) {
+        const int u = parsed_inference.optimal_path[i - 1];
+        const int v = parsed_inference.optimal_path[i];
+        assert(tg.up[v][0] == u || tg.up[u][0] == v);
+        assert(tg.depth[u] != tg.depth[v]);
+    }
+    // Поток и цепочка должны переживать отсечение по маске.
+    assert(parsed_inference.max_flow > 0);
+
+    // max_flow агрегирует параллельные семантические цепочки: запрос с
+    // кластерами обязан пропускать больше, чем пустой/неизвестный.
+    const int empty_flow = pipeline.infer("", 42, false).max_flow;
+    const int graph_flow = pipeline.infer("граф знаний", 42, false).max_flow;
+    assert(graph_flow > empty_flow);
+    assert(pipeline.infer("zzzzz", 42, false).max_flow == empty_flow);
+
     TaylorIntentKernel kernel;
     std::array<float, TaylorIntentKernel::INPUT_DIM> x{};
     for (std::size_t i = 0; i < x.size(); ++i) x[i] = -0.5f + 0.03f * static_cast<float>(i);
@@ -75,9 +103,34 @@ int main() {
     }
 
     MorphemicPatriciaTrie trie;
+    assert(trie.morpheme_count() >= 500);
     auto [mask, count] = trie.compile_morpheme_mask("переподключение графа мыслей", y_taylor);
     assert(count >= 3);
     assert(mask != 0);
+    assert((mask & MorphemicPatriciaTrie::type_mask(
+                        MorphemicPatriciaTrie::MorphemeType::PREFIX)) != 0);
+
+    const auto [rich_mask, rich_count] = trie.compile_morpheme_mask(
+        "нейроны графа знаний", y_taylor);
+    assert(rich_count >= 3);
+    assert((rich_mask & MorphemicPatriciaTrie::cluster_mask(
+                                MorphemicPatriciaTrie::Semantic::GRAPH)) != 0);
+    assert((rich_mask & MorphemicPatriciaTrie::cluster_mask(
+                                MorphemicPatriciaTrie::Semantic::KNOW)) != 0);
+    assert((rich_mask & MorphemicPatriciaTrie::cluster_mask(
+                                MorphemicPatriciaTrie::Semantic::MIND)) != 0);
+
+    const auto [code_mask, code_count] = trie.compile_morpheme_mask(
+        "компиляция и отладка кода", y_taylor);
+    assert(code_count >= 3);
+    assert((code_mask & MorphemicPatriciaTrie::cluster_mask(
+                                MorphemicPatriciaTrie::Semantic::COMPUTE)) != 0);
+
+    // Слово вне словаря не должно давать ложных морфем ("кот" -> "от").
+    const auto [unknown_mask, unknown_count] =
+        trie.compile_morpheme_mask("кот", y_taylor);
+    assert(unknown_count == 0);
+    assert((unknown_mask & 0xFFFFFF000000ULL) == 0); // нет битов типов и кластеров
 
     MegaRAGCentroidGraph rag(5000, 6);
     rag.build_centroid_index();

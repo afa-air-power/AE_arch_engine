@@ -1,4 +1,4 @@
-#include "../include/lang/programing/parser.hpp"
+#include "lang/programing/parser.hpp"
 
 #include <array>
 #include <cctype>

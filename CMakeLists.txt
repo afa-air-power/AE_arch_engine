@@ -19,14 +19,20 @@ option(AE_ENABLE_NATIVE_OPT "Enable -O3 -march=native CPU optimizations" ON)
 
 find_package(Threads REQUIRED)
 
-add_library(ae_mind1_core STATIC
+set(AE_LANG_SOURCES
+    src/lang/en/parser.cpp
+    src/lang/ru/parser.cpp
+    src/lang/programing/parser.cpp
+)
+
+set(AE_CORE_SOURCES
     src/lang_parser.cpp
-        include/lang/humans/en/parser.cpp
-        include/lang/humans/ru/parser.cpp
-        include/lang/lang/programing/parser.cpp
+    ${AE_LANG_SOURCES}
     src/engine_pipeline.cpp
     src/ae_c_api.cpp
 )
+
+add_library(ae_mind1_core STATIC ${AE_CORE_SOURCES})
 target_include_directories(ae_mind1_core
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -39,14 +45,7 @@ if(AE_ENABLE_NATIVE_OPT AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 if(AE_BUILD_SHARED)
-    add_library(ae_mind1 SHARED
-        src/lang_parser.cpp
-            include/lang/humans/en/parser.cpp
-            include/lang/humans/ru/parser.cpp
-            include/lang/lang/programing/parser.cpp
-        src/engine_pipeline.cpp
-        src/ae_c_api.cpp
-    )
+    add_library(ae_mind1 SHARED ${AE_CORE_SOURCES})
     target_include_directories(ae_mind1 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
     target_link_libraries(ae_mind1 PUBLIC Threads::Threads)
     if(AE_ENABLE_NATIVE_OPT AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -67,8 +66,8 @@ endif()
 if(AE_BUILD_PYBIND11)
     find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
     find_package(pybind11 CONFIG REQUIRED)
-    pybind11_add_module(ae_mind1_pybind bindings/pybind_module.cpp)
-    target_link_libraries(ae_mind1_pybind PRIVATE ae_mind1_core)
+    pybind11_add_module(ae_mind_pybind bindings/pybind_module.cpp)
+    target_link_libraries(ae_mind_pybind PRIVATE ae_mind1_core)
 endif()
 
 if(AE_BUILD_TESTS)
@@ -97,4 +96,4 @@ endif()
 if(AE_BUILD_BENCHMARK)
     install(TARGETS ae_bench RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
-install(DIRECTORY include/ae DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

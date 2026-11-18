@@ -5,13 +5,13 @@
 // Author: Andrey Firstov (IU5 BMSTU)
 // ============================================================================
 
-#include "../include/dinitz_decoder.hpp"
-#include "../include/lang/humans/parser.hpp"
-#include "../include/mega_rag_centroid.hpp"
-#include "../include/morphemic_trie.hpp"
-#include "../include/taylor_intent_kernel.hpp"
-#include "../include/thought_graph.hpp"
-#include "../include/time_ray_ast.hpp"
+#include "dinitz_decoder.hpp"
+#include "lang/parser.hpp"
+#include "mega_rag_centroid.hpp"
+#include "morphemic_trie.hpp"
+#include "taylor_intent_kernel.hpp"
+#include "thought_graph.hpp"
+#include "time_ray_ast.hpp"
 
 #include <array>
 #include <cstdint>
@@ -47,6 +47,14 @@ public:
                       std::uint64_t compatibility_mask);
 
     void reroot_thought_graph(int new_root) noexcept;
+
+    [[nodiscard]] const ThoughtGraphTopology& thought_graph() const noexcept {
+        return thought_graph_;
+    }
+
+    [[nodiscard]] const MorphemicPatriciaTrie& trie() const noexcept {
+        return trie_;
+    }
 
     InferenceResult infer(std::string_view query,
                           int target_hint = -1,

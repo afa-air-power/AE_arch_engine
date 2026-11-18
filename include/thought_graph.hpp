@@ -50,7 +50,10 @@ struct ThoughtGraphTopology {
     std::vector<std::vector<std::pair<int, int>>> adj_horiz;
     std::vector<std::vector<int>> up;
     std::vector<std::vector<int>> max_edge;
+    std::vector<std::vector<int>> min_edge;
     std::vector<int> depth;
+
+    static constexpr int kInfWeight = 1'000'000;
 
     void init_from_subgraph(int num_nodes, const std::vector<Edge>& edges) {
         n = num_nodes;
@@ -63,6 +66,7 @@ struct ThoughtGraphTopology {
         adj_horiz.assign(n, {});
         up.assign(n, std::vector<int>(log_n, 0));
         max_edge.assign(n, std::vector<int>(log_n, 0));
+        min_edge.assign(n, std::vector<int>(log_n, kInfWeight));
         depth.assign(n, 0);
 
         std::vector<Edge> sorted_edges = edges;
@@ -94,11 +98,13 @@ struct ThoughtGraphTopology {
         depth[u] = d;
         up[u][0] = p;
         max_edge[u][0] = w;
+        min_edge[u][0] = (u == p) ? kInfWeight : w;
 
         for (int i = 1; i < log_n; ++i) {
             int mid = up[u][i - 1];
             up[u][i] = up[mid][i - 1];
             max_edge[u][i] = std::max(max_edge[u][i - 1], max_edge[mid][i - 1]);
+            min_edge[u][i] = std::min(min_edge[u][i - 1], min_edge[mid][i - 1]);
         }
 
         for (const auto& [v, weight] : adj_mst[u]) {
@@ -137,6 +143,58 @@ struct ThoughtGraphTopology {
         if (new_root < 0 || new_root >= n || new_root == current_root) return;
         current_root = new_root;
         dfs_lca(current_root, current_root, 0, 0);
+    }
+
+    // Минимальный вес ребра на пути u..v (настоящий bottleneck, в отличие от
+    // query_path_binup, который возвращает максимум).
+    std::pair<int, int> query_path_min_binup(int u, int v) const noexcept {
+        int res = kInfWeight;
+        if (depth[u] < depth[v]) std::swap(u, v);
+
+        for (int i = log_n - 1; i >= 0; --i) {
+            if (depth[u] - (1 << i) >= depth[v]) {
+                res = std::min(res, min_edge[u][i]);
+                u = up[u][i];
+            }
+        }
+        if (u == v) return {u, res};
+
+        for (int i = log_n - 1; i >= 0; --i) {
+            if (up[u][i] != up[v][i]) {
+                res = std::min(res, min_edge[u][i]);
+                res = std::min(res, min_edge[v][i]);
+                u = up[u][i];
+                v = up[v][i];
+            }
+        }
+        res = std::min(res, min_edge[u][0]);
+        res = std::min(res, min_edge[v][0]);
+        return {up[u][0], res};
+    }
+
+    // Последовательность вершин единственного пути в остовном дереве: от u до v.
+    std::vector<int> path_between(int u, int v) const {
+        std::vector<int> left;
+        std::vector<int> right;
+        int a = u;
+        int b = v;
+        while (depth[a] > depth[b]) {
+            left.push_back(a);
+            a = up[a][0];
+        }
+        while (depth[b] > depth[a]) {
+            right.push_back(b);
+            b = up[b][0];
+        }
+        while (a != b) {
+            left.push_back(a);
+            right.push_back(b);
+            a = up[a][0];
+            b = up[b][0];
+        }
+        left.push_back(a);
+        left.insert(left.end(), right.rbegin(), right.rend());
+        return left;
     }
 };
 

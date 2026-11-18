@@ -123,4 +123,4 @@ struct DinitzGraphDecoder {
     }
 };
 
-} // namespace ae::mind1
+} // namespace ae::mind

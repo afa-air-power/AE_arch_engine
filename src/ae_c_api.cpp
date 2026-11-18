@@ -1,5 +1,5 @@
-#include "../include/ae_c_api.h"
-#include "../include/engine_pipeline.hpp"
+#include "ae_c_api.h"
+#include "engine_pipeline.hpp"
 
 #include <algorithm>
 #include <memory>

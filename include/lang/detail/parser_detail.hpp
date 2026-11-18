@@ -1,6 +1,6 @@
 #pragma once
 
-#include "parser.hpp"
+#include "../parser.hpp"
 
 #include <algorithm>
 #include <array>
@@ -8,6 +8,14 @@
 #include <string_view>
 
 namespace ae::lang::detail {
+
+// Минимальная длина остатка после отделения приставки: три кириллических
+// символа (6 байт UTF-8). Без словаря это защищает короткие основы
+// ("воин", "изба", "разум") от ложного разбора.
+constexpr std::size_t MIN_STEM_BYTES = 6;
+// Основа с двумя приставками встречается часто ("пере-под-ключение"),
+// три и более — практически всегда артефакт жадного разбора.
+constexpr int MAX_PREFIXES_PER_WORD = 2;
 
 struct Affix {
     std::string_view text;
@@ -82,14 +90,17 @@ ParseResult parse_words(
 
         std::string_view word = text.substr(word_begin, cursor - word_begin);
         std::size_t offset = word_begin;
-        while (!word.empty()) {
+        int stripped_prefixes = 0;
+        while (!word.empty() && stripped_prefixes < MAX_PREFIXES_PER_WORD) {
             const std::string_view prefix = longest_affix(word, prefixes, true);
-            if (prefix.empty() || prefix.size() == word.size()) {
+            if (prefix.empty() ||
+                word.size() - prefix.size() < MIN_STEM_BYTES) {
                 break;
             }
             append_morpheme(result, prefix, MorphemeType::PREFIX, offset);
             word.remove_prefix(prefix.size());
             offset += prefix.size();
+            ++stripped_prefixes;
         }
 
         std::string_view suffix;

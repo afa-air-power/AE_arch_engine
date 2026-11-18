@@ -2,3 +2,5 @@
 cmake-build-debug
 build
 build-cmake
+__pycache__/
+*.pyc

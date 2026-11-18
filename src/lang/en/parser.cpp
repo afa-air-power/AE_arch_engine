@@ -1,6 +1,6 @@
-#include "../../../lang/humans/en/parser.hpp"
+#include "lang/en/parser.hpp"
 
-#include "../../../lang/humans/parser_detail.hpp"
+#include "lang/detail/parser_detail.hpp"
 
 #include <array>
 

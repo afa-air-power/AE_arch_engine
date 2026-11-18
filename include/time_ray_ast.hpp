@@ -5,7 +5,7 @@
 // Author: Andrey Firstov (IU5 BMSTU)
 // ============================================================================
 
-#include "../include/thought_graph.hpp"
+#include "thought_graph.hpp"
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
