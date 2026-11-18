@@ -29,7 +29,9 @@ class AESLMOrchestrator:
         if self.endpoint_url:
             slm_reply = self._call_remote_slm(ae_out.ast_prompt)
         else:
-            slm_reply = self._deterministic_verbalize(ae_out)
+            # Основной выход уже на естественном языке и проверен обратным
+            # разбором; детальный отчёт остаётся как трассировка.
+            slm_reply = ae_out.nl_text or self._deterministic_verbalize(ae_out)
 
         return {
             "query": query,
@@ -40,6 +42,13 @@ class AESLMOrchestrator:
             "time_ray_forward": ae_out.time_ray.forward_cascade_score,
             "time_ray_backward": ae_out.time_ray.backward_consistency_score,
             "ast_prompt": ae_out.ast_prompt,
+            "natural_language": ae_out.nl_text,
+            "nl_feedback": ae_out.nl_feedback,
+            "nl_consistent": ae_out.nl_consistent,
+            "nl_cluster_recall": ae_out.nl_cluster_recall,
+            "nl_cluster_precision": ae_out.nl_cluster_precision,
+            "nl_reparsed_morphemes": ae_out.nl_reparsed_morphemes,
+            "trace_response": self._deterministic_verbalize(ae_out),
             "verbalized_response": slm_reply,
         }
 

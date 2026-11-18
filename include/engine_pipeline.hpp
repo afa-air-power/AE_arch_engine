@@ -9,6 +9,7 @@
 #include "lang/parser.hpp"
 #include "mega_rag_centroid.hpp"
 #include "morphemic_trie.hpp"
+#include "natural_language_output.hpp"
 #include "taylor_intent_kernel.hpp"
 #include "thought_graph.hpp"
 #include "time_ray_ast.hpp"
@@ -33,6 +34,7 @@ struct InferenceResult {
     std::vector<int> optimal_path;
     TimeRayReport time_ray;
     ASTPromptResult ast;
+    NaturalLanguageReport natural_language;
     double latency_us = 0.0;
 };
 

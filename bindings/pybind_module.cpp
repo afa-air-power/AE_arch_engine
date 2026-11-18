@@ -19,6 +19,15 @@ PYBIND11_MODULE(ae_mind_pybind, m) {
         .def_readonly("estimated_tokens", &ASTPromptResult::estimated_tokens)
         .def_readonly("explainable_trace", &ASTPromptResult::explainable_trace);
 
+    py::class_<NaturalLanguageReport>(m, "NaturalLanguageReport")
+        .def_readonly("text", &NaturalLanguageReport::text)
+        .def_readonly("feedback", &NaturalLanguageReport::feedback)
+        .def_readonly("cluster_recall", &NaturalLanguageReport::cluster_recall)
+        .def_readonly("cluster_precision", &NaturalLanguageReport::cluster_precision)
+        .def_readonly("reparsed_morphemes", &NaturalLanguageReport::reparsed_morphemes)
+        .def_readonly("refinement_passes", &NaturalLanguageReport::refinement_passes)
+        .def_readonly("consistent", &NaturalLanguageReport::consistent);
+
     py::class_<InferenceResult>(m, "InferenceResult")
         .def_readonly("intent_vector", &InferenceResult::intent_vector)
         .def_readonly("morpheme_mask", &InferenceResult::morpheme_mask)
@@ -30,6 +39,7 @@ PYBIND11_MODULE(ae_mind_pybind, m) {
         .def_readonly("optimal_path", &InferenceResult::optimal_path)
         .def_readonly("time_ray", &InferenceResult::time_ray)
         .def_readonly("ast", &InferenceResult::ast)
+        .def_readonly("natural_language", &InferenceResult::natural_language)
         .def_readonly("latency_us", &InferenceResult::latency_us);
 
     py::class_<AEEnginePipeline>(m, "AEEnginePipeline")

@@ -9,6 +9,8 @@ struct AEEngineHandle {
     std::unique_ptr<ae::mind::AEEnginePipeline> pipeline;
     std::string last_ast;
     std::string last_trace;
+    std::string last_nl;
+    std::string last_nl_feedback;
 };
 
 extern "C" {
@@ -46,6 +48,8 @@ int32_t ae_engine_infer(AEEngineHandle* handle,
     auto res = handle->pipeline->infer(query_utf8, target_hint, true);
     handle->last_ast = res.ast.ast_text;
     handle->last_trace = res.ast.explainable_trace;
+    handle->last_nl = res.natural_language.text;
+    handle->last_nl_feedback = res.natural_language.feedback;
 
     if (out_metrics) {
         out_metrics->morpheme_mask = res.morpheme_mask;
@@ -65,6 +69,11 @@ int32_t ae_engine_infer(AEEngineHandle* handle,
         out_metrics->anomalies_pruned = res.time_ray.anomalies_pruned;
         out_metrics->time_ray_elapsed_us = res.time_ray.elapsed_us;
         out_metrics->estimated_tokens = res.ast.estimated_tokens;
+        out_metrics->nl_cluster_recall = res.natural_language.cluster_recall;
+        out_metrics->nl_cluster_precision = res.natural_language.cluster_precision;
+        out_metrics->nl_reparsed_morphemes = res.natural_language.reparsed_morphemes;
+        out_metrics->nl_refinement_passes = res.natural_language.refinement_passes;
+        out_metrics->nl_consistent = res.natural_language.consistent ? 1 : 0;
     }
     return 0;
 }
@@ -77,6 +86,16 @@ const char* ae_engine_get_last_ast(const AEEngineHandle* handle) {
 const char* ae_engine_get_last_trace(const AEEngineHandle* handle) {
     if (!handle) return "";
     return handle->last_trace.c_str();
+}
+
+const char* ae_engine_get_last_nl(const AEEngineHandle* handle) {
+    if (!handle) return "";
+    return handle->last_nl.c_str();
+}
+
+const char* ae_engine_get_last_nl_feedback(const AEEngineHandle* handle) {
+    if (!handle) return "";
+    return handle->last_nl_feedback.c_str();
 }
 
 } // extern "C"

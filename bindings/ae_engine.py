@@ -24,6 +24,11 @@ class _CAEInferenceMetrics(ctypes.Structure):
         ("anomalies_pruned", ctypes.c_int32),
         ("time_ray_elapsed_us", ctypes.c_double),
         ("estimated_tokens", ctypes.c_size_t),
+        ("nl_cluster_recall", ctypes.c_double),
+        ("nl_cluster_precision", ctypes.c_double),
+        ("nl_reparsed_morphemes", ctypes.c_int32),
+        ("nl_refinement_passes", ctypes.c_int32),
+        ("nl_consistent", ctypes.c_int32),
     ]
 
 
@@ -50,6 +55,13 @@ class AEInferenceOutput:
     estimated_tokens: int
     ast_prompt: str
     explainable_trace: str
+    nl_text: str
+    nl_feedback: str
+    nl_cluster_recall: float
+    nl_cluster_precision: float
+    nl_reparsed_morphemes: int
+    nl_refinement_passes: int
+    nl_consistent: bool
 
 
 class AEArchEngine:
@@ -115,6 +127,10 @@ class AEArchEngine:
         self._lib.ae_engine_get_last_ast.restype = ctypes.c_char_p
         self._lib.ae_engine_get_last_trace.argtypes = [ctypes.c_void_p]
         self._lib.ae_engine_get_last_trace.restype = ctypes.c_char_p
+        self._lib.ae_engine_get_last_nl.argtypes = [ctypes.c_void_p]
+        self._lib.ae_engine_get_last_nl.restype = ctypes.c_char_p
+        self._lib.ae_engine_get_last_nl_feedback.argtypes = [ctypes.c_void_p]
+        self._lib.ae_engine_get_last_nl_feedback.restype = ctypes.c_char_p
 
     def add_morpheme(
         self,
@@ -147,6 +163,8 @@ class AEArchEngine:
 
         ast_bytes = self._lib.ae_engine_get_last_ast(self._handle)
         trace_bytes = self._lib.ae_engine_get_last_trace(self._handle)
+        nl_bytes = self._lib.ae_engine_get_last_nl(self._handle)
+        nl_feedback_bytes = self._lib.ae_engine_get_last_nl_feedback(self._handle)
         path = [int(metrics.path_nodes[i]) for i in range(metrics.path_length)]
 
         return AEInferenceOutput(
@@ -168,6 +186,16 @@ class AEArchEngine:
             estimated_tokens=int(metrics.estimated_tokens),
             ast_prompt=ast_bytes.decode("utf-8", errors="replace") if ast_bytes else "",
             explainable_trace=trace_bytes.decode("utf-8", errors="replace") if trace_bytes else "",
+            nl_text=nl_bytes.decode("utf-8", errors="replace") if nl_bytes else "",
+            nl_feedback=(
+                nl_feedback_bytes.decode("utf-8", errors="replace")
+                if nl_feedback_bytes else ""
+            ),
+            nl_cluster_recall=float(metrics.nl_cluster_recall),
+            nl_cluster_precision=float(metrics.nl_cluster_precision),
+            nl_reparsed_morphemes=int(metrics.nl_reparsed_morphemes),
+            nl_refinement_passes=int(metrics.nl_refinement_passes),
+            nl_consistent=bool(metrics.nl_consistent),
         )
 
     def close(self) -> None:

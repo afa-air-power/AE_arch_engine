@@ -93,6 +93,30 @@ int main() {
     assert(graph_flow > empty_flow);
     assert(pipeline.infer("zzzzz", 42, false).max_flow == empty_flow);
 
+    // Выход на естественном языке обязан пережить обратный разбор парсером.
+    const auto nl_ru = pipeline.infer("нейроны графа знаний и поток данных", 42, false)
+                           .natural_language;
+    assert(!nl_ru.text.empty());
+    assert(nl_ru.consistent);
+    assert(nl_ru.cluster_recall >= 0.99);
+    assert(nl_ru.reparsed_morphemes > 0);
+    assert(nl_ru.reparsed.language == ae::lang::Language::RUSSIAN);
+    assert((nl_ru.parsed_clusters &
+            MorphemicPatriciaTrie::cluster_mask(MorphemicPatriciaTrie::Semantic::GRAPH)) != 0);
+    assert((nl_ru.parsed_clusters &
+            MorphemicPatriciaTrie::cluster_mask(MorphemicPatriciaTrie::Semantic::KNOW)) != 0);
+
+    const auto nl_en = pipeline.infer("graph of knowledge", 42, false).natural_language;
+    assert(!nl_en.text.empty());
+    assert(nl_en.consistent);
+    assert(nl_en.reparsed.language == ae::lang::Language::ENGLISH);
+
+    // Неизвестный запрос не должен выдумывать домены.
+    const auto nl_unknown = pipeline.infer("zzz qqq", 42, false).natural_language;
+    assert(nl_unknown.expected_clusters == 0);
+    assert(nl_unknown.parsed_clusters == 0);
+    assert(nl_unknown.consistent);
+
     TaylorIntentKernel kernel;
     std::array<float, TaylorIntentKernel::INPUT_DIM> x{};
     for (std::size_t i = 0; i < x.size(); ++i) x[i] = -0.5f + 0.03f * static_cast<float>(i);

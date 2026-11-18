@@ -22,6 +22,11 @@ def main() -> None:
         assert res.max_flow > 0
         assert len(res.optimal_path) >= 2
         assert "AE_VERIFIED_AST_V1.1" in res.ast_prompt
+        assert res.nl_text, "natural-language output must not be empty"
+        assert res.nl_consistent
+        assert res.nl_cluster_recall >= 0.99
+        assert res.nl_reparsed_morphemes > 0
+        assert "Обратный разбор" in res.nl_feedback
 
         engine.reroot(8)
         res_reroot = engine.infer("нейро граф мыслей", target_hint=500)
@@ -29,7 +34,9 @@ def main() -> None:
 
         orchestrator = AESLMOrchestrator(engine=engine)
         ans = orchestrator.answer("разреженный граф знаний и поток Диница", target_hint=1024, reroot_node=0)
-        assert "KB_CHUNK_" in ans["verbalized_response"]
+        assert ans["nl_consistent"]
+        assert ans["natural_language"]
+        assert "KB_CHUNK_" in ans["trace_response"]
 
         print("[PASS] Python bindings & SLM bridge integration tests succeeded!")
 

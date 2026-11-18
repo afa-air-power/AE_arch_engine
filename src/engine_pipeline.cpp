@@ -161,6 +161,12 @@ InferenceResult AEEnginePipeline::infer(std::string_view query,
         query, res.centroid_id, res.centroid_hops,
         res.morpheme_mask, res.max_flow, res.optimal_path, thought_graph_);
 
+    // Замкнутый контур: интент + маска -> естественный язык -> обратный разбор
+    // тем же парсером. Отчёт содержит текст и метрики сверки.
+    res.natural_language = render_natural_language(
+        query, res.intent_vector, res.morpheme_mask,
+        res.max_flow, res.path_bottleneck, trie_);
+
     return res;
 }
 

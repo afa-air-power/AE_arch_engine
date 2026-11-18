@@ -28,6 +28,13 @@ typedef struct AEInferenceMetrics {
     int32_t anomalies_pruned;
     double time_ray_elapsed_us;
     size_t estimated_tokens;
+
+    /* Natural-language round-trip (must stay in sync with ae_engine.py). */
+    double nl_cluster_recall;
+    double nl_cluster_precision;
+    int32_t nl_reparsed_morphemes;
+    int32_t nl_refinement_passes;
+    int32_t nl_consistent;
 } AEInferenceMetrics;
 
 AEEngineHandle* ae_engine_create(int32_t rag_nodes, int32_t rag_avg_degree);
@@ -48,6 +55,8 @@ int32_t ae_engine_infer(AEEngineHandle* handle,
 
 const char* ae_engine_get_last_ast(const AEEngineHandle* handle);
 const char* ae_engine_get_last_trace(const AEEngineHandle* handle);
+const char* ae_engine_get_last_nl(const AEEngineHandle* handle);
+const char* ae_engine_get_last_nl_feedback(const AEEngineHandle* handle);
 
 #ifdef __cplusplus
 }
