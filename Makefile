@@ -31,6 +31,7 @@ $(TEST_BIN): tests/test_ae_core.cpp $(SRCS_LIB) | $(BUILD_DIR)
 test: all
 	./$(TEST_BIN)
 	python3 tests/test_bindings.py
+	python3 tests/test_graph_training.py
 
 bench: $(BENCH_BIN)
 	./$(BENCH_BIN)

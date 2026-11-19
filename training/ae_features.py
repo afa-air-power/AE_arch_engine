@@ -190,7 +190,7 @@ def build_dataset(
     neighbors: int = 0,
     rag_nodes: int = 20000,
     groups: Iterable[str] = DEFAULT_GROUPS,
-    graph: str = "lexical",
+    graph: str = "none",
     min_similarity: float = 0.15,
 ) -> dict[str, Any]:
     samples = list(samples)
@@ -229,7 +229,8 @@ def main(argv: Iterable[str] | None = None) -> None:
     parser.add_argument("corpus", help="JSON corpus with samples[{query,label,split}]")
     parser.add_argument("output", help="destination dataset JSON")
     parser.add_argument("--neighbors", type=int, default=0)
-    parser.add_argument("--graph", default="lexical", choices=("lexical", "knn", "none"))
+    parser.add_argument("--graph", default="none", choices=("lexical", "knn", "none"),
+                        help="graph structure over samples; 'none' is the measured best on the seed corpus")
     parser.add_argument("--min-similarity", type=float, default=0.15)
     parser.add_argument("--rag-nodes", type=int, default=20000)
     parser.add_argument("--target-hint", type=int, default=-1)

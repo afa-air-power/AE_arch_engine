@@ -4,6 +4,7 @@
 
 namespace py = pybind11;
 using namespace ae::mind;
+namespace lang = ae::lang;
 
 PYBIND11_MODULE(ae_mind_pybind, m) {
     m.doc() = "AE Arch Engine (AE::mind_v1.1_Stable) C++23 native pybind11 bindings";
@@ -115,6 +116,25 @@ PYBIND11_MODULE(ae_mind_pybind, m) {
         .def("apply_boolean_mask_and_reset",
              &DinitzGraphDecoder::apply_boolean_mask_and_reset, py::arg("boolean_mask"))
         .def("max_flow", &DinitzGraphDecoder::max_flow, py::arg("s"), py::arg("t"));
+
+    // ---- Language parsers -------------------------------------------------
+    m.def("detect_language", [](std::string_view text) {
+        switch (lang::detect_language(text)) {
+            case lang::Language::RUSSIAN: return "russian";
+            case lang::Language::ENGLISH: return "english";
+            default: return "programming";
+        }
+    }, py::arg("text"));
+
+    m.def("parse_morphemes", [](std::string_view text) {
+        std::vector<std::string> out;
+        if (lang::LanguageInterface* parser = lang::select_parser(text)) {
+            for (const auto& morpheme : parser->parse(text).morphemes) {
+                out.push_back(morpheme.text);
+            }
+        }
+        return out;
+    }, py::arg("text"));
 
     // ---- Pipeline --------------------------------------------------------
     py::class_<AEEnginePipeline>(m, "AEEnginePipeline")

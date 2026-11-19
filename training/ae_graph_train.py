@@ -229,6 +229,51 @@ def evaluate(model, dataset: GraphDataset):
     return {name: _metrics(pred, dataset.labels, np.flatnonzero(dataset.split == name)) for name in ("train", "val", "test")}
 
 
+def stratified_folds(labels: np.ndarray, folds: int, seed: int = 42) -> np.ndarray:
+    """Stratified fold assignment so every fold sees every class."""
+    rng = np.random.default_rng(seed)
+    assignment = np.zeros(len(labels), dtype=np.int64)
+    for cls in np.unique(labels):
+        indices = np.flatnonzero(labels == cls)
+        rng.shuffle(indices)
+        for position, index in enumerate(indices):
+            assignment[index] = position % folds
+    return assignment
+
+
+def cross_validate(dataset: GraphDataset, folds: int = 5, epochs: int = 200,
+                   learning_rate: float = 1e-2, hidden_dim: int = 0,
+                   weight_decay: float = 1e-3, seed: int = 42) -> dict:
+    """Stratified k-fold estimate: a single 18-sample test split is too noisy."""
+    assignment = stratified_folds(dataset.labels, folds, seed)
+    fold_metrics = []
+    for fold in range(folds):
+        split = np.where(assignment == fold, "test", "train").astype(object)
+        train_indices = np.flatnonzero(split == "train")
+        # Внутренний validation для early stopping, чтобы held-out fold
+        # не участвовал в выборе эпохи.
+        rng = np.random.default_rng(seed + fold)
+        inner = rng.permutation(train_indices)
+        val_size = max(1, len(inner) // 10)
+        split[inner[:val_size]] = "val"
+        fold_dataset = GraphDataset(dataset.node_features, dataset.adjacency, dataset.labels, split)
+        model, _ = train(fold_dataset, epochs=epochs, learning_rate=learning_rate,
+                         hidden_dim=hidden_dim, seed=seed + fold,
+                         weight_decay=weight_decay, patience=0)
+        metrics = evaluate(model, fold_dataset)["test"]
+        fold_metrics.append(metrics)
+    accuracies = np.asarray([m["accuracy"] for m in fold_metrics])
+    f1_scores = np.asarray([m["macro_f1"] for m in fold_metrics])
+    return {
+        "folds": folds,
+        "accuracy_mean": float(accuracies.mean()),
+        "accuracy_std": float(accuracies.std()),
+        "macro_f1_mean": float(f1_scores.mean()),
+        "macro_f1_std": float(f1_scores.std()),
+        "per_fold": fold_metrics,
+    }
+
+
 def load_checkpoint(path):
     payload = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
     return GraphSAGEClassifier.from_state_dict(payload["model"])
@@ -244,8 +289,15 @@ def main(argv: Iterable[str] | None = None):
     parser.add_argument("--weight-decay", type=float, default=0.0)
     parser.add_argument("--patience", type=int, default=0)
     parser.add_argument("--checkpoint", default="checkpoints/ae_graph.json")
+    parser.add_argument("--cv", type=int, default=0, help="stratified k-fold evaluation instead of the fixed split")
     args = parser.parse_args(argv)
     dataset = GraphDataset.load(args.dataset)
+    if args.cv > 1:
+        report = cross_validate(dataset, folds=args.cv, epochs=args.epochs,
+                                learning_rate=args.learning_rate, hidden_dim=args.hidden_dim,
+                                weight_decay=args.weight_decay)
+        print(json.dumps({"cross_validation": report}, indent=2))
+        return
     model, history = train(dataset, args.epochs, args.learning_rate, args.hidden_dim,
                            checkpoint=args.checkpoint, weight_decay=args.weight_decay,
                            patience=args.patience)

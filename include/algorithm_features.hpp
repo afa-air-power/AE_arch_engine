@@ -61,7 +61,7 @@ inline constexpr std::array<std::string_view, AlgorithmFeatureVector::DIM>
         "path_monotonicity", "path_max_edge_weight", "path_min_edge_weight",
         "path_mean_mst_degree", "path_mean_chord_degree", "graph_root",
         "time_ray_forward", "time_ray_backward", "time_ray_anomalies",
-        "time_ray_elapsed_us", "nl_cluster_recall", "nl_cluster_precision",
+        "path_mean_edge_weight", "nl_cluster_recall", "nl_cluster_precision",
         "nl_consistent", "nl_refinement_passes", "nl_reparsed_morphemes",
         "estimated_tokens", "query_bytes", "language_is_russian",
         "language_is_english", "morpheme_density",
@@ -149,6 +149,8 @@ inline AlgorithmFeatureVector build_algorithm_features(
 
     // [32..41] топология графа мыслей.
     v[32] = clamp01(static_cast<double>(path.size()) / 32.0);
+    double edge_sum = 0.0;
+    double edge_count = 0.0;
     if (!path.empty()) {
         double sum = 0.0;
         int increasing = 0;
@@ -171,6 +173,8 @@ inline AlgorithmFeatureVector build_algorithm_features(
                 (void)lca_min;
                 max_w = std::max(max_w, max_weight);
                 min_w = std::min(min_w, min_weight);
+                edge_sum += static_cast<double>(max_weight);
+                edge_count += 1.0;
             }
         }
         const double count = static_cast<double>(path.size());
@@ -196,7 +200,8 @@ inline AlgorithmFeatureVector build_algorithm_features(
                     (1.0 + time_ray.forward_cascade_score));
     v[43] = clamp01(time_ray.backward_consistency_score);
     v[44] = clamp01(static_cast<double>(time_ray.anomalies_pruned) / 8.0);
-    v[45] = clamp01(time_ray.elapsed_us / 1000.0);
+    // Детерминированная замена wall-clock времени: средний вес ребра пути.
+    v[45] = edge_count > 0.0 ? clamp01(edge_sum / (edge_count * 256.0)) : 0.0f;
 
     // [46..50] обратный разбор NL.
     v[46] = clamp01(nl_recall);

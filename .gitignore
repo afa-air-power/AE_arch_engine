@@ -4,3 +4,6 @@ build
 build-cmake
 __pycache__/
 *.pyc
+data/
+checkpoints/
+reports/

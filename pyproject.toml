@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "ae-arch-engine"
 version = "1.1.0"
 description = "Python SDK and SLM 3B Bridge for AE Arch Engine (AE::mind1_v1.1_Stable)"
-readme = "README.md"
+readme = "docs/README.md"
 requires-python = ">=3.10"
 authors = [
     { name = "Andrey Firstov (IU5 BMSTU)", email = "firstovandre800@gmail.com" }
@@ -14,9 +14,12 @@ authors = [
 
 [tool.setuptools.packages.find]
 where = ["bindings", "."]
-include = ["ae_engine*", "slm_bridge*", "training*", "tools*"]
+include = ["ae_engine*", "slm_bridge*", "training*", "tools*", "benchmarks*"]
 
 [project.scripts]
 ae-train-graph = "training.ae_graph_train:main"
 ae-hip-smoke = "training.ae_graph_hip:main"
 ae-make-demo-dataset = "tools.make_demo_dataset:main"
+ae-make-text-corpus = "tools.make_text_cluster_corpus:main"
+ae-build-features = "training.ae_features:main"
+ae-bench = "benchmarks.run_all:main"

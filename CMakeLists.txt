@@ -16,6 +16,7 @@ option(AE_BUILD_BENCHMARK "Build CLI stress benchmark executable ae_bench" ON)
 option(AE_BUILD_TESTS "Build C++23 and Python unit tests" ON)
 option(AE_BUILD_PYBIND11 "Build optional native pybind11 Python extension" OFF)
 option(AE_ENABLE_NATIVE_OPT "Enable -O3 -march=native CPU optimizations" ON)
+option(AE_ENABLE_HIP_TESTS "Register the Vega 7 HIP smoke test with CTest" OFF)
 
 find_package(Threads REQUIRED)
 
@@ -88,6 +89,22 @@ if(AE_BUILD_TESTS)
             NAME AE_GraphTrainingContractTests
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_graph_training.py
         )
+        if(AE_BUILD_PYBIND11)
+            add_test(
+                NAME AE_AlgorithmFeatureTests
+                COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_features.py
+            )
+            add_test(
+                NAME AE_SubjectBenchmarks
+                COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_benchmarks.py
+            )
+        endif()
+        if(AE_ENABLE_HIP_TESTS)
+            add_test(
+                NAME AE_HipSmokeTest
+                COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/training/ae_graph_hip.py
+            )
+        endif()
     endif()
 endif()
 
