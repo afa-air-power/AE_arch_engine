@@ -86,6 +86,10 @@ if(AE_BUILD_TESTS)
     endif()
     if(Python3_Interpreter_FOUND)
         add_test(
+            NAME AE_CorpusContractTests
+            COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_corpus.py
+        )
+        add_test(
             NAME AE_GraphTrainingContractTests
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_graph_training.py
         )

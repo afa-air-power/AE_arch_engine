@@ -11,6 +11,8 @@ Python-обвязка (`ctypes` + `pybind11`) и обучаемый графов
 - [docs/README.md](docs/README.md) — сборка, структура проекта, API и Python-обвязка.
 - [docs/TRAINING.md](docs/TRAINING.md) — признаки из алгоритмов, датасет, обучение,
   предметные метрики и HIP-проверка Vega 7.
+- [docs/LABELING.md](docs/LABELING.md) — правила и цикл ручной разметки
+  корпуса текстовых кластеров.
 - [docs/adr/README.md](docs/adr/README.md) — Architecture Decision Records:
   обоснование каждого алгоритма и технического решения.
 

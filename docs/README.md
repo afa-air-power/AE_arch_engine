@@ -15,6 +15,7 @@ AE_Arch_Engine/
 ├── docs/                           # Документация
 │   ├── README.md                   # Документация по сборке и API
 │   ├── TRAINING.md                 # Обучаемый контур и предметные метрики
+│   ├── LABELING.md                 # Правила и цикл ручной разметки корпуса
 │   └── adr/                        # Architecture Decision Records (обоснование решений)
 ├── include/                        # Публичные заголовки (устанавливаются в <prefix>/include)
 │   ├── ae_c_api.h                  # Чистый C ABI (extern "C") для FFI (Python ctypes, Rust, Go)
@@ -308,6 +309,14 @@ HSA_OVERRIDE_GFX_VERSION=9.0.0 python3 -m training.ae_graph_hip --target gfx900
 
 Подробности, формат датасета, раскладка признаков и измеренные метрики —
 в [TRAINING.md](TRAINING.md).
+
+## Ручная разметка корпуса
+
+Seed-корпус (90 запросов) отделён от ручной разметки
+(`training/corpora/text_clusters_manual.json`, 180 запросов). Объединённый
+корпус собирается `tools/merge_corpora.py`, проверяется `tests/test_corpus.py`
+и описывается в [LABELING.md](LABELING.md): правила классов, баланс split'ов,
+текущие метрики и следующие шаги.
 
 ## Архитектурные решения (ADR)
 

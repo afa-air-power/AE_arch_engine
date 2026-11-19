@@ -122,6 +122,34 @@ split и early stopping по validation macro-F1 (восстанавливает
 кросс-валидация — основная оценка. Для роста качества нужен размеченный корпус
 на сотни запросов на кластер, а не усложнение модели.
 
+### Объединённый корпус с ручной разметкой
+
+Seed-корпус (90 запросов) дополнен ручной разметкой
+`training/corpora/text_clusters_manual.json` (180 запросов). Объединённый
+корпус `training/corpora/text_clusters_expanded.json` содержит 270 запросов:
+9 классов × 30, split 162/54/54 (18/6/6 на класс). Правила и цикл разметки —
+в [LABELING.md](LABELING.md).
+
+| Метрика | Seed (90) | Expanded (270) |
+|---|---:|---:|
+| Hold-out test accuracy | 0.667 (18) | **0.944** (54) |
+| Hold-out test macro-F1 | 0.663 | **0.937** |
+| 5-fold CV accuracy | 0.856 ± 0.125 | **0.863 ± 0.038** |
+| 5-fold CV macro-F1 | 0.844 ± 0.141 | **0.858 ± 0.042** |
+
+Цифры не сравнимы напрямую из-за разных test split'ов; значимо то, что
+разброс CV уменьшился примерно втрое. Команды воспроизведения:
+
+```bash
+python3 tools/merge_corpora.py training/corpora/text_clusters.json \
+  training/corpora/text_clusters_manual.json \
+  -o training/corpora/text_clusters_expanded.json
+python3 -m training.ae_features training/corpora/text_clusters_expanded.json \
+  data/text_clusters_expanded_features.json
+python3 -m training.ae_graph_train data/text_clusters_expanded_features.json \
+  --cv 5 --epochs 300 --hidden-dim 0 --learning-rate 0.01 --weight-decay 0.01
+```
+
 ## 6. Предметные метрики
 
 ### Логические задачи для ядра
