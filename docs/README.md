@@ -14,7 +14,8 @@ AE_Arch_Engine/
 ├── README.md                       # Краткий указатель на документацию
 ├── docs/                           # Документация
 │   ├── README.md                   # Документация по сборке и API
-│   └── TRAINING.md                 # Обучаемый контур и предметные метрики
+│   ├── TRAINING.md                 # Обучаемый контур и предметные метрики
+│   └── adr/                        # Architecture Decision Records (обоснование решений)
 ├── include/                        # Публичные заголовки (устанавливаются в <prefix>/include)
 │   ├── ae_c_api.h                  # Чистый C ABI (extern "C") для FFI (Python ctypes, Rust, Go)
 │   ├── engine_pipeline.hpp         # Единый высокоуровневый конвейер AEEnginePipeline
@@ -307,3 +308,9 @@ HSA_OVERRIDE_GFX_VERSION=9.0.0 python3 -m training.ae_graph_hip --target gfx900
 
 Подробности, формат датасета, раскладка признаков и измеренные метрики —
 в [TRAINING.md](TRAINING.md).
+
+## Архитектурные решения (ADR)
+
+Обоснование каждого алгоритма и технического решения вынесено в
+[adr/README.md](adr/README.md). Каждый ADR содержит контекст, принятое
+решение, отклонённые альтернативы и последствия.
