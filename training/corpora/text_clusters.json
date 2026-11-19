@@ -1,0 +1,556 @@
+{
+  "name": "text_clusters",
+  "labels": [
+    "GRAPH",
+    "KNOW",
+    "FLOW",
+    "TEXT",
+    "NUM",
+    "COMPUTE",
+    "MIND",
+    "NET",
+    "ACTION"
+  ],
+  "samples": [
+    {
+      "query": "граф знаний и дерево вершин",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train"
+    },
+    {
+      "query": "структура связей между узлами",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train"
+    },
+    {
+      "query": "остовное дерево и компоненты связности",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train"
+    },
+    {
+      "query": "иерархия кластеров и подграф",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "val"
+    },
+    {
+      "query": "разреженный граф и матрица смежности",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train"
+    },
+    {
+      "query": "graph structure and spanning tree",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "test"
+    },
+    {
+      "query": "матрица смежности и степень вершины",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train"
+    },
+    {
+      "query": "обход графа в глубину и в ширину",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train"
+    },
+    {
+      "query": "adjacency matrix and vertex degree",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "val"
+    },
+    {
+      "query": "graph traversal and connected components",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "test"
+    },
+    {
+      "query": "знание смысл и память",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train"
+    },
+    {
+      "query": "онтология понятий и фактов",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train"
+    },
+    {
+      "query": "контекст и семантика данных",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train"
+    },
+    {
+      "query": "истина гипотеза и логика",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "val"
+    },
+    {
+      "query": "категория концепт и определение",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train"
+    },
+    {
+      "query": "knowledge ontology and semantic facts",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "test"
+    },
+    {
+      "query": "понятие и определение термина",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train"
+    },
+    {
+      "query": "база знаний и правила вывода",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train"
+    },
+    {
+      "query": "semantic meaning and context",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "val"
+    },
+    {
+      "query": "knowledge base and inference rules",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "test"
+    },
+    {
+      "query": "поток данных и маршрут",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train"
+    },
+    {
+      "query": "конвейер обработки и этапы",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train"
+    },
+    {
+      "query": "каскад процессов и очередь",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train"
+    },
+    {
+      "query": "пропускная способность канала",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "val"
+    },
+    {
+      "query": "итерация цикла и переход",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train"
+    },
+    {
+      "query": "data flow pipeline and routing",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "test"
+    },
+    {
+      "query": "очередь задач и планировщик",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train"
+    },
+    {
+      "query": "балансировка нагрузки канала",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train"
+    },
+    {
+      "query": "scheduler queue and buffer",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "val"
+    },
+    {
+      "query": "stream processing stages",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "test"
+    },
+    {
+      "query": "текст и морфемы слова",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train"
+    },
+    {
+      "query": "токены лексемы и предложения",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train"
+    },
+    {
+      "query": "язык грамматика синтаксис",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train"
+    },
+    {
+      "query": "корпус документов и перевод",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "val"
+    },
+    {
+      "query": "алфавит символ и пунктуация",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train"
+    },
+    {
+      "query": "text tokens and morphology",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "test"
+    },
+    {
+      "query": "морфологический разбор слова",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train"
+    },
+    {
+      "query": "предложение и пунктуация",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train"
+    },
+    {
+      "query": "corpus of documents and translation",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "val"
+    },
+    {
+      "query": "grammar syntax and punctuation",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "test"
+    },
+    {
+      "query": "число вектор и матрица",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train"
+    },
+    {
+      "query": "полином тейлора и градиент",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train"
+    },
+    {
+      "query": "алгоритм вычисления метрики",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train"
+    },
+    {
+      "query": "вероятность и статистика",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "val"
+    },
+    {
+      "query": "интеграл предел и производная",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train"
+    },
+    {
+      "query": "number vector and matrix",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "test"
+    },
+    {
+      "query": "сумма ряда и предел",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train"
+    },
+    {
+      "query": "матричное умножение и спектр",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train"
+    },
+    {
+      "query": "probability distribution and statistics",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "val"
+    },
+    {
+      "query": "integral derivative and limit",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "test"
+    },
+    {
+      "query": "программа процессор и модуль",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train"
+    },
+    {
+      "query": "сборка компиляция и код",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train"
+    },
+    {
+      "query": "вычислительная архитектура",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train"
+    },
+    {
+      "query": "память регистры и кэш",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "val"
+    },
+    {
+      "query": "библиотека интерфейс и платформа",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train"
+    },
+    {
+      "query": "program processor and module",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "test"
+    },
+    {
+      "query": "компилятор и байткод",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train"
+    },
+    {
+      "query": "кэш регистров и инструкции",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train"
+    },
+    {
+      "query": "compiler bytecode and instruction",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "val"
+    },
+    {
+      "query": "operating system kernel and driver",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "test"
+    },
+    {
+      "query": "мозг нейрон и сознание",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train"
+    },
+    {
+      "query": "когнитивная модель разума",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train"
+    },
+    {
+      "query": "интеллект и обучение",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train"
+    },
+    {
+      "query": "психика восприятие и внимание",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "val"
+    },
+    {
+      "query": "мотивация решение и прогноз",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train"
+    },
+    {
+      "query": "brain neuron and cognition",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "test"
+    },
+    {
+      "query": "внимание память и решение",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train"
+    },
+    {
+      "query": "эмоция и поведение",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train"
+    },
+    {
+      "query": "attention memory and decision",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "val"
+    },
+    {
+      "query": "emotion behavior and perception",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "test"
+    },
+    {
+      "query": "сеть протокол и маршрутизация",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train"
+    },
+    {
+      "query": "обмен пакетами между узлами",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train"
+    },
+    {
+      "query": "соединение и топология сети",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train"
+    },
+    {
+      "query": "распределённая сеть и трафик",
+      "label": 7,
+      "cluster": "NET",
+      "split": "val"
+    },
+    {
+      "query": "сокет адрес и порт",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train"
+    },
+    {
+      "query": "network protocol and routing",
+      "label": 7,
+      "cluster": "NET",
+      "split": "test"
+    },
+    {
+      "query": "маршрутизатор и шлюз",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train"
+    },
+    {
+      "query": "сессия и авторизация клиента",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train"
+    },
+    {
+      "query": "router gateway and traffic",
+      "label": 7,
+      "cluster": "NET",
+      "split": "val"
+    },
+    {
+      "query": "session authorization and socket",
+      "label": 7,
+      "cluster": "NET",
+      "split": "test"
+    },
+    {
+      "query": "действие операция преобразование",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train"
+    },
+    {
+      "query": "запуск остановка и повтор",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train"
+    },
+    {
+      "query": "изменение состояния системы",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train"
+    },
+    {
+      "query": "переход и завершение",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "val"
+    },
+    {
+      "query": "сортировка фильтрация и агрегация",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train"
+    },
+    {
+      "query": "action operation and transformation",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "test"
+    },
+    {
+      "query": "поиск и сортировка данных",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train"
+    },
+    {
+      "query": "генерация и фильтрация",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train"
+    },
+    {
+      "query": "search sort and filter",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "val"
+    },
+    {
+      "query": "generation and transformation",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "test"
+    }
+  ]
+}

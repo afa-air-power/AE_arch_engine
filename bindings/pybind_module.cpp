@@ -42,11 +42,96 @@ PYBIND11_MODULE(ae_mind_pybind, m) {
         .def_readonly("natural_language", &InferenceResult::natural_language)
         .def_readonly("latency_us", &InferenceResult::latency_us);
 
+    // ---- Algorithm-derived feature vector -------------------------------
+    py::class_<AlgorithmFeatureVector>(m, "AlgorithmFeatureVector")
+        .def_readonly("values", &AlgorithmFeatureVector::values)
+        .def_static("dim", []() { return AlgorithmFeatureVector::DIM; })
+        .def_static("names", []() {
+            std::vector<std::string> out;
+            out.reserve(kAlgorithmFeatureNames.size());
+            for (std::string_view name : kAlgorithmFeatureNames) {
+                out.emplace_back(name);
+            }
+            return out;
+        })
+        .def("__len__", [](const AlgorithmFeatureVector&) {
+            return AlgorithmFeatureVector::DIM;
+        })
+        .def("__getitem__", [](const AlgorithmFeatureVector& self, int index) {
+            if (index < 0 || index >= AlgorithmFeatureVector::DIM) {
+                throw py::index_error("feature index out of range");
+            }
+            return self[index];
+        });
+
+    // ---- Thought graph topology -----------------------------------------
+    py::class_<ThoughtGraphTopology::Edge>(m, "ThoughtEdge")
+        .def_readonly("u", &ThoughtGraphTopology::Edge::u)
+        .def_readonly("v", &ThoughtGraphTopology::Edge::v)
+        .def_readonly("weight", &ThoughtGraphTopology::Edge::weight)
+        .def_readonly("id", &ThoughtGraphTopology::Edge::id)
+        .def_readonly("tag", &ThoughtGraphTopology::Edge::tag);
+
+    py::class_<ThoughtGraphTopology>(m, "ThoughtGraphTopology")
+        .def_readonly("n", &ThoughtGraphTopology::n)
+        .def_readonly("log_n", &ThoughtGraphTopology::log_n)
+        .def_readonly("current_root", &ThoughtGraphTopology::current_root)
+        .def_readonly("depth", &ThoughtGraphTopology::depth)
+        .def_readonly("all_edges", &ThoughtGraphTopology::all_edges)
+        .def_readonly("adj_mst", &ThoughtGraphTopology::adj_mst)
+        .def_readonly("adj_horiz", &ThoughtGraphTopology::adj_horiz)
+        .def("reroot", &ThoughtGraphTopology::reroot)
+        .def("query_path_binup", &ThoughtGraphTopology::query_path_binup)
+        .def("query_path_min_binup", &ThoughtGraphTopology::query_path_min_binup)
+        .def("path_between", &ThoughtGraphTopology::path_between);
+
+    // ---- Morphemic trie --------------------------------------------------
+    py::class_<MorphemicPatriciaTrie>(m, "MorphemicPatriciaTrie")
+        .def("morpheme_count", &MorphemicPatriciaTrie::morpheme_count)
+        .def("contains", &MorphemicPatriciaTrie::contains)
+        .def("compile_morpheme_mask",
+             [](const MorphemicPatriciaTrie& self, std::string_view text,
+                const std::array<float, 16>& intent) {
+                 return self.compile_morpheme_mask(text, intent);
+             },
+             py::arg("text"), py::arg("intent"));
+
+    // ---- Mega RAG centroid graph ----------------------------------------
+    py::class_<MegaRAGCentroidGraph>(m, "MegaRAGCentroidGraph")
+        .def_readonly("n_nodes", &MegaRAGCentroidGraph::n_nodes)
+        .def_readonly("centroid_depth", &MegaRAGCentroidGraph::centroid_depth)
+        .def_readonly("centroid_parent", &MegaRAGCentroidGraph::centroid_parent)
+        .def_readonly("root_centroid", &MegaRAGCentroidGraph::root_centroid)
+        .def("build_centroid_index", &MegaRAGCentroidGraph::build_centroid_index)
+        .def("locate_centroid_cluster", &MegaRAGCentroidGraph::locate_centroid_cluster);
+
+    // ---- Dinitz decoder --------------------------------------------------
+    py::class_<DinitzGraphDecoder>(m, "DinitzGraphDecoder")
+        .def(py::init<int>(), py::arg("nodes") = 64)
+        .def_readonly("n", &DinitzGraphDecoder::n)
+        .def_readonly("edge_count", &DinitzGraphDecoder::edge_count)
+        .def("add_static_edge", &DinitzGraphDecoder::add_static_edge,
+             py::arg("from"), py::arg("to"), py::arg("base_cap"), py::arg("tag"))
+        .def("apply_boolean_mask_and_reset",
+             &DinitzGraphDecoder::apply_boolean_mask_and_reset, py::arg("boolean_mask"))
+        .def("max_flow", &DinitzGraphDecoder::max_flow, py::arg("s"), py::arg("t"));
+
+    // ---- Pipeline --------------------------------------------------------
     py::class_<AEEnginePipeline>(m, "AEEnginePipeline")
         .def(py::init<int, int>(), py::arg("rag_nodes") = 100000, py::arg("rag_avg_degree") = 6)
         .def("reroot_thought_graph", &AEEnginePipeline::reroot_thought_graph, py::arg("new_root"))
+        .def("extract_features", &AEEnginePipeline::extract_features,
+             py::arg("query"), py::arg("target_hint") = -1)
         .def("infer", &AEEnginePipeline::infer,
              py::arg("query"),
              py::arg("target_hint") = -1,
-             py::arg("run_time_ray_async") = true);
+             py::arg("run_time_ray_async") = true)
+        .def("thought_graph", &AEEnginePipeline::thought_graph,
+             py::return_value_policy::reference_internal)
+        .def("trie", &AEEnginePipeline::trie,
+             py::return_value_policy::reference_internal)
+        .def("rag", &AEEnginePipeline::rag,
+             py::return_value_policy::reference_internal)
+        .def("decoder", py::overload_cast<>(&AEEnginePipeline::decoder),
+             py::return_value_policy::reference_internal);
 }

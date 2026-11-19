@@ -13,4 +13,10 @@ authors = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["bindings"]
+where = ["bindings", "."]
+include = ["ae_engine*", "slm_bridge*", "training*", "tools*"]
+
+[project.scripts]
+ae-train-graph = "training.ae_graph_train:main"
+ae-hip-smoke = "training.ae_graph_hip:main"
+ae-make-demo-dataset = "tools.make_demo_dataset:main"
