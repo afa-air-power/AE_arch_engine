@@ -76,6 +76,61 @@ struct MorphemicPatriciaTrie {
         return BASE_MASK | type_mask(type) | cluster_mask(cluster);
     }
 
+    // Результат разбора: маска сочетаемости, число найденных морфем и
+    // поддержка каждого семантического кластера. Поддержка — это число
+    // морфем в запросе, которые несут данный кластерный бит. Маска хранит
+    // только факт наличия, поэтому два запроса с одинаковым набором битов
+    // (например, "graph coloring" и "graph spectrum") раньше были
+    // неразличимы; счётчики сохраняют эту информацию.
+    struct MorphemeAnalysis {
+        std::uint64_t mask = BASE_MASK;
+        int matched_morphemes = 0;
+        std::array<std::uint16_t, 20> cluster_counts{};
+    };
+
+    // Составные термины, где отдельные корни дают конкурирующие кластеры.
+    // Триe матчит слова независимо, поэтому "neural network" даёт MIND + NET,
+    // а "routing table" — FLOW без NET. Правило добавляет детерминированную
+    // поддержку главному кластеру фразы; морфемный разбор при этом не
+    // отключается, поэтому контекст сохраняется, а не подменяется.
+    struct CompoundRule {
+        std::string_view first;
+        std::string_view second;
+        std::string_view third;
+        Semantic primary;
+        std::uint8_t weight;
+    };
+
+    inline static constexpr CompoundRule kCompoundRules[] = {
+        // English: cognition vs networking
+        {"neural", "network", "", Semantic::MIND, 2},
+        {"network", "of", "neurons", Semantic::MIND, 2},
+        // English: graph/flow context inside networking terms
+        {"network", "topology", "", Semantic::GRAPH, 2},
+        {"network", "connectivity", "", Semantic::GRAPH, 2},
+        {"network", "flow", "", Semantic::FLOW, 2},
+        {"network", "transfer", "", Semantic::FLOW, 2},
+        {"network", "throughput", "", Semantic::FLOW, 2},
+        {"data", "routing", "", Semantic::FLOW, 2},
+        {"stream", "routing", "", Semantic::FLOW, 2},
+        {"routing", "table", "", Semantic::NET, 3},
+        {"packet", "routing", "", Semantic::NET, 2},
+        {"traffic", "routing", "", Semantic::NET, 2},
+        {"network", "packet", "", Semantic::NET, 2},
+        {"network", "traffic", "", Semantic::NET, 2},
+        // Russian: те же конфликтующие пары
+        {"нейронная", "сеть", "", Semantic::MIND, 2},
+        {"сеть", "нейронов", "", Semantic::MIND, 2},
+        {"сетевая", "топология", "", Semantic::GRAPH, 2},
+        {"топология", "сети", "", Semantic::GRAPH, 2},
+        {"граф", "сети", "", Semantic::GRAPH, 2},
+        {"сетевой", "поток", "", Semantic::FLOW, 2},
+        {"поток", "данных", "", Semantic::FLOW, 2},
+        {"таблица", "маршрутов", "", Semantic::NET, 3},
+        {"маршрутизация", "пакетов", "", Semantic::NET, 2},
+        {"маршрутизация", "трафика", "", Semantic::NET, 2},
+    };
+
     struct Node {
         std::string edge_label;
         int morpheme_id = -1;
@@ -485,7 +540,7 @@ struct MorphemicPatriciaTrie {
         // -- корни: graph / structure -----------------------------------------
         seed_roots(Semantic::GRAPH, {
             "graph", "tree", "node", "edge", "vertex", "vertic", "link",
-            "network", "root", "leaf", "branch", "cluster", "component",
+            "root", "leaf", "branch", "cluster", "component",
             "structure", "hierarchy", "topology", "cycle", "loop", "mesh",
             "grid", "chain", "spanning", "adjacency", "degree", "connectivity",
             "forest", "subgraph", "traverse"
@@ -576,11 +631,11 @@ struct MorphemicPatriciaTrie {
 
         // -- корни: networking ---------------------------------------------------
         seed_roots(Semantic::NET, {
-            "internet", "protocol", "packet", "request", "response", "transmit",
-            "connect", "port", "address", "domain", "switch", "traffic",
-            "gateway", "proxy", "firewall", "auth", "session", "cookie",
-            "replica", "socket", "modem", "router", "satellite", "telecom",
-            "wireless"
+            "internet", "network", "protocol", "packet", "request", "response",
+            "transmit", "connect", "port", "address", "domain", "switch",
+            "traffic", "gateway", "proxy", "firewall", "auth", "session",
+            "cookie", "replica", "socket", "modem", "router", "satellite",
+            "telecom", "wireless"
         });
 
         // -- корни: physics ------------------------------------------------------
@@ -722,10 +777,58 @@ struct MorphemicPatriciaTrie {
     // зарегистрированная морфема, затем разбор продолжается с её конца.
     // Такой проход не считает вложенные совпадения ("аст" внутри "астро")
     // и не завышает matched_morphemes на словаре в 1000+ единиц.
-    __attribute__((noinline)) std::pair<std::uint64_t, int> compile_morpheme_mask(
+    static bool token_equals(std::string_view text, std::size_t begin,
+                             std::size_t end, std::string_view token) noexcept {
+        if (end - begin != token.size()) return false;
+        for (std::size_t i = 0; i < token.size(); ++i) {
+            if (ascii_lower(text[begin + i]) != ascii_lower(token[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static bool next_token(std::string_view text, std::size_t from,
+                           std::size_t& begin, std::size_t& end) noexcept {
+        std::size_t cursor = from;
+        while (cursor < text.size() &&
+               !is_word_byte(static_cast<unsigned char>(text[cursor]))) {
+            ++cursor;
+        }
+        if (cursor == text.size()) return false;
+        begin = cursor;
+        while (cursor < text.size() &&
+               is_word_byte(static_cast<unsigned char>(text[cursor]))) {
+            ++cursor;
+        }
+        end = cursor;
+        return true;
+    }
+
+    static const CompoundRule* match_compound(std::string_view text,
+                                               std::size_t begin,
+                                               std::size_t end) noexcept {
+        for (const CompoundRule& rule : kCompoundRules) {
+            if (!token_equals(text, begin, end, rule.first)) continue;
+            std::size_t second_begin = 0;
+            std::size_t second_end = 0;
+            if (!next_token(text, end, second_begin, second_end)) continue;
+            if (!token_equals(text, second_begin, second_end, rule.second)) continue;
+            if (!rule.third.empty()) {
+                std::size_t third_begin = 0;
+                std::size_t third_end = 0;
+                if (!next_token(text, second_end, third_begin, third_end)) continue;
+                if (!token_equals(text, third_begin, third_end, rule.third)) continue;
+            }
+            return &rule;
+        }
+        return nullptr;
+    }
+
+    __attribute__((noinline)) MorphemeAnalysis compile_morpheme_analysis(
         std::string_view text, const std::array<float, 16>& intent) const noexcept {
-        std::uint64_t mask = BASE_MASK;
-        int matched_morphemes = 0;
+        MorphemeAnalysis analysis;
+        std::uint64_t& mask = analysis.mask;
 
         std::size_t cursor = 0;
         while (cursor < text.size()) {
@@ -743,6 +846,15 @@ struct MorphemicPatriciaTrie {
                 }
                 return end;
             }();
+
+            // Составной термин добавляет поддержку главному кластеру до
+            // морфемного разбора. Например, "routing table" получает NET,
+            // хотя корень routing сам по себе относится к FLOW.
+            if (const CompoundRule* compound = match_compound(text, cursor, word_end)) {
+                mask |= cluster_mask(compound->primary);
+                analysis.cluster_counts[static_cast<std::size_t>(compound->primary)] +=
+                    compound->weight;
+            }
 
             std::size_t pos = cursor;
             while (pos < word_end) {
@@ -771,8 +883,14 @@ struct MorphemicPatriciaTrie {
                     // срабатывания ("кот" -> приставка "от").
                     break;
                 }
-                mask |= nodes[best_node].compatibility_mask;
-                ++matched_morphemes;
+                const std::uint64_t compatibility = nodes[best_node].compatibility_mask;
+                mask |= compatibility;
+                for (int cluster = 0; cluster < 20; ++cluster) {
+                    if (compatibility & cluster_mask(static_cast<Semantic>(cluster))) {
+                        ++analysis.cluster_counts[static_cast<std::size_t>(cluster)];
+                    }
+                }
+                ++analysis.matched_morphemes;
                 pos = best_end;
             }
             cursor = word_end;
@@ -783,7 +901,13 @@ struct MorphemicPatriciaTrie {
                 mask |= (1ULL << (b + 8));
             }
         }
-        return {mask, matched_morphemes};
+        return analysis;
+    }
+
+    std::pair<std::uint64_t, int> compile_morpheme_mask(
+        std::string_view text, const std::array<float, 16>& intent) const noexcept {
+        const MorphemeAnalysis analysis = compile_morpheme_analysis(text, intent);
+        return {analysis.mask, analysis.matched_morphemes};
     }
 };
 

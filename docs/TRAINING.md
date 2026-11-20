@@ -11,14 +11,14 @@
 | Модуль | Что даёт модели |
 |---|---|
 | Taylor-Intent Kernel | 16-мерный intent-вектор |
-| Morphemic Patricia Trie | popcount маски, matched-морфемы, 20 индикаторов кластеров |
+| Morphemic Patricia Trie | popcount маски, matched-морфемы, 20 индикаторов и 20 счётчиков кластеров, детерминированные составные термины |
 | Mega RAG (centroid decomposition) | id центроида, число шагов, глубина |
 | Dinitz max-flow | `max_flow`, `path_bottleneck`, отношения |
 | Thought Graph (Kruskal + BINUP LCA) | длина пути, веса рёбер, степени MST/хорд, монотонность |
 | Time-Ray | forward/backward scores, число отсечённых аномалий |
 | NL round-trip | cluster recall/precision, число проходов |
 
-Вектор признаков — 76 значений в `[0, 1]` (`include/algorithm_features.hpp`).
+Вектор признаков — 96 значений в `[0, 1]` (`include/algorithm_features.hpp`).
 Раскладка:
 
 ```text
@@ -31,7 +31,15 @@
 [46..50] обратный разбор NL
 [51..55] метаданные запроса
 [56..75] индикаторы 20 семантических кластеров
+[76..95] поддержка кластеров: log1p(число морфем) / log1p(16)
 ```
+
+Индикатор отвечает на вопрос «тема встретилась», счётчик — «насколько
+сильно она поддержана». Это различает запросы с одинаковым набором битов,
+например `graph coloring` и `graph spectrum`. Дополнительно trie содержит
+небольшую таблицу составных терминов (`neural network → MIND`,
+`routing table → NET`, `network flow → FLOW`): она добавляет поддержку
+главному кластеру фразы, но не отключает морфемный разбор.
 
 Признаки детерминированы: время выполнения в вектор не входит, поэтому два
 одинаковых запроса дают побитово одинаковый вектор (проверяется тестом).
@@ -40,17 +48,21 @@
 
 `intent`, `centroid` и `timeray` выводятся из байтового хэша запроса и кодируют
 его идентичность, а не смысл. На малой выборке они дают запоминание вместо
-обобщения, поэтому по умолчанию исключены:
+обобщения, поэтому по умолчанию исключены. Текущий default — 18 признаков:
 
 ```text
-morphology, flow, topology, nl, query, clusters   # 53 признака
+cluster_core, cluster_counts_core   # 9 битов + 9 счётчиков
 ```
+
+`cluster_core` — только кластеры, совпадающие с таксономией меток
+(`graph, know, flow, text, num, mind, compute, net, action`). Остальные 11
+кластеров почти всегда нулевые и только добавляют дисперсию.
 
 Полный набор доступен через `--groups`:
 
 ```bash
 python3 -m training.ae_features corpus.json data/all.json \
-  --groups intent,morphology,centroid,flow,topology,timeray,nl,query,clusters
+  --groups intent,morphology,centroid,flow,topology,timeray,nl,query,clusters,cluster_counts
 ```
 
 ## 3. Формат датасета
@@ -58,49 +70,57 @@ python3 -m training.ae_features corpus.json data/all.json \
 ```json
 {
   "node_features": [[0.1, 0.2]],
-  "adjacency": [[0, 1], [1, 0]],
+  "adjacency": [],
   "labels": [0, 1],
   "split": ["train", "test"],
   "queries": ["граф и дерево"],
-  "feature_names": ["mask_popcount", "..."],
-  "meta": {"feature_dim": 53, "feature_groups": ["..."], "graph": "none"}
+  "feature_names": ["cluster_graph", "..."],
+  "meta": {"feature_dim": 18, "feature_groups": ["..."], "graph": "none"}
 }
 ```
 
-`node_features` — `[N, F]`, `adjacency` — `[N, N]`, `labels` — целые классы,
-`split` — `train` / `val` / `test` для каждого узла.
+`node_features` — `[N, F]`, `labels` — целые классы, `split` —
+`train` / `val` / `test` для каждого узла. При `"graph": "none"` поле
+`adjacency` пустое (`0×0`), а не плотная `[N, N]`: обучение трактует пустой
+граф как тождественную агрегацию и не тратит память на матрицу 4 950 × 4 950.
 
 ## 4. Граф над образцами
 
 `--graph` задаёт структуру связей между образцами:
 
-- `none` — без рёбер (измеренно лучший режим на seed-корпусе);
+- `none` — без рёбер (измеренно лучший режим; кодируется пустым adjacency);
 - `lexical` — рёбра по пересечению словаря запросов (Jaccard ≥ `--min-similarity`);
 - `knn` — k ближайших соседей по стандартизованным признакам (`--neighbors`).
 
-Граф должен кодировать реальные отношения. На корпусе из 90 запросов и
-`lexical`, и `knn` смешивают темы и ухудшают метрику, поэтому по умолчанию
-выбран `none`; для корпуса с явными парафразами или документами используйте
+Граф должен кодировать реальные отношения. На текстовом корпусе и `lexical`,
+и `knn` смешивают темы и ухудшают метрику, поэтому по умолчанию выбран
+`none`; для корпуса с явными парафразами или документами используйте
 `lexical`.
 
 ## 5. Обучение
 
 ```bash
-# 1. корпус (seed, 90 запросов, 9 кластеров)
+# 1. corpus: seed (90) + two manual waves (360) + synthetic train (4 500)
 python3 tools/make_text_cluster_corpus.py
+python3 tools/make_text_cluster_synthetic.py
+python3 tools/merge_corpora.py training/corpora/text_clusters.json \
+  training/corpora/text_clusters_manual.json \
+  training/corpora/text_clusters_manual_v2.json \
+  training/corpora/text_clusters_synthetic.json \
+  -o training/corpora/text_clusters_expanded.json
 
-# 2. признаки из алгоритмов ядра
-python3 -m training.ae_features training/corpora/text_clusters.json \
-  data/text_clusters_features.json
+# 2. признаки из алгоритмов ядра (18-мерный default)
+python3 -m training.ae_features training/corpora/text_clusters_expanded.json \
+  data/text_clusters_expanded_features.json
 
-# 3. обучение с фиксированным split
-python3 -m training.ae_graph_train data/text_clusters_features.json \
-  --epochs 300 --hidden-dim 8 --learning-rate 0.01 --weight-decay 0.01 \
-  --patience 60 --checkpoint checkpoints/text_clusters.json
+# 3. обучение с фиксированным split ручного якоря
+python3 -m training.ae_graph_train data/text_clusters_expanded_features.json \
+  --epochs 400 --hidden-dim 0 --learning-rate 0.01 --weight-decay 0.01 \
+  --checkpoint checkpoints/text_clusters_expanded.json
 
 # 4. стратифицированная кросс-валидация (надёжнее одного test split)
-python3 -m training.ae_graph_train data/text_clusters_features.json \
-  --cv 5 --epochs 300 --hidden-dim 8 --learning-rate 0.01 --weight-decay 0.01
+python3 -m training.ae_graph_train data/text_clusters_expanded_features.json \
+  --cv 5 --epochs 400 --hidden-dim 0 --learning-rate 0.01 --weight-decay 0.01
 ```
 
 Модель — двухслойный GraphSAGE-подобный классификатор с mean-агрегацией и
@@ -122,33 +142,46 @@ split и early stopping по validation macro-F1 (восстанавливает
 кросс-валидация — основная оценка. Для роста качества нужен размеченный корпус
 на сотни запросов на кластер, а не усложнение модели.
 
-### Объединённый корпус с ручной разметкой
+### Объединённый корпус: ручной якорь и синтетика
 
-Seed-корпус (90 запросов) дополнен ручной разметкой
-`training/corpora/text_clusters_manual.json` (180 запросов). Объединённый
-корпус `training/corpora/text_clusters_expanded.json` содержит 270 запросов:
-9 классов × 30, split 162/54/54 (18/6/6 на класс). Правила и цикл разметки —
-в [LABELING.md](LABELING.md).
+Seed-корпус (90 запросов) дополнен двумя волнами ручной разметки
+`text_clusters_manual.json` и `text_clusters_manual_v2.json` (по 180
+запросов) и детерминированной синтетической волной
+`text_clusters_synthetic.json` (4 500 запросов, 500 на класс).
+Объединённый корпус `training/corpora/text_clusters_expanded.json`
+содержит 4 950 запросов: split `4770 train / 90 val / 90 test`
+(по 530/10/10 на класс). Вся синтетика имеет `split: "train"`, поэтому
+ручной `val`/`test` остаётся чистым якорем.
 
-| Метрика | Seed (90) | Expanded (270) |
+Синтетический генератор проверяет каждый запрос через
+`compile_morpheme_analysis`: метка принимается, только если нужный кластер
+присутствует в trie-разборе, а для трудных пар — если он доминирует.
+Поэтому синтетика не создаёт признаков, которых ядро не умеет выдавать.
+
+Правила и цикл разметки — в [LABELING.md](LABELING.md).
+
+| Метрика | Seed (90) | Ручной v2 (450) | + синтетика (4 950) |
+|---|---:|---:|---:|
+| Hold-out test accuracy | 0.667 (18) | 0.833 (90) | **0.931 ± 0.023** (90) |
+| Hold-out test macro-F1 | 0.663 | 0.835 | — |
+| 5-fold CV accuracy, ручной якорь | 0.856 ± 0.125 | 0.809 ± 0.039 | **0.868 ± 0.014** |
+| 5-fold CV macro-F1, ручной якорь | 0.844 ± 0.141 | 0.808 ± 0.037 | **0.867 ± 0.014** |
+| 5-fold CV accuracy, полный корпус | — | — | **0.968 ± 0.002** |
+
+CV-числа для нового корпуса — среднее по 5 seed разбиения. Hold-out на
+ручном якоре (`val` + `test`, 180 примеров) даёт **0.898 ± 0.013**;
+`val` (выбор эпохи) — 0.864 ± 0.011, `test` — 0.931 ± 0.023. Разбивка:
+
+| Подмножество | Примеров | Accuracy |
 |---|---:|---:|
-| Hold-out test accuracy | 0.667 (18) | **0.944** (54) |
-| Hold-out test macro-F1 | 0.663 | **0.937** |
-| 5-fold CV accuracy | 0.856 ± 0.125 | **0.863 ± 0.038** |
-| 5-fold CV macro-F1 | 0.844 ± 0.141 | **0.858 ± 0.042** |
+| Однозначные (один кластерный бит) | 121 | **0.944 ± 0.004** |
+| Трудные (два и более бита) | 59 | **0.813 ± 0.042** |
+| RU | 81 | 0.849 ± 0.009 |
+| EN | 99 | 0.937 ± 0.021 |
 
-Цифры не сравнимы напрямую из-за разных test split'ов; значимо то, что
-разброс CV уменьшился примерно втрое. Команды воспроизведения:
-
-```bash
-python3 tools/merge_corpora.py training/corpora/text_clusters.json \
-  training/corpora/text_clusters_manual.json \
-  -o training/corpora/text_clusters_expanded.json
-python3 -m training.ae_features training/corpora/text_clusters_expanded.json \
-  data/text_clusters_expanded_features.json
-python3 -m training.ae_graph_train data/text_clusters_expanded_features.json \
-  --cv 5 --epochs 300 --hidden-dim 0 --learning-rate 0.01 --weight-decay 0.01
-```
+Трудные пары выросли с `0.500` до `0.813` за счёт счётчиков кластеров и
+слоя составных терминов. Остаточные ошибки — неизвестные контексты, а не
+отдельные корни; следующий шаг — синтаксические признаки.
 
 ## 6. Предметные метрики
 
@@ -231,5 +264,5 @@ cmake --build build -j$(nproc)
 ctest --test-dir build --output-on-failure
 ```
 
-Ожидается 6/6 тестов: ядро C++, Python-обвязка, контракт обучения, признаки,
-предметные бенчмарки, HIP smoke test.
+Ожидается 7/7 тестов: ядро C++, Python-обвязка, контракт корпуса, контракт
+обучения, признаки, предметные бенчмарки, HIP smoke test.

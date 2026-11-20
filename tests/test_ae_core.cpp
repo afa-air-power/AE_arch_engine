@@ -150,6 +150,53 @@ int main() {
     assert((code_mask & MorphemicPatriciaTrie::cluster_mask(
                                 MorphemicPatriciaTrie::Semantic::COMPUTE)) != 0);
 
+    // Счётчики кластеров сохраняют поддержку темы, которую маска теряет.
+    const auto rich_analysis = trie.compile_morpheme_analysis(
+        "нейроны графа знаний", y_taylor);
+    assert(rich_analysis.mask == rich_mask);
+    assert(rich_analysis.matched_morphemes == rich_count);
+    assert(rich_analysis.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::GRAPH)] >= 1);
+    assert(rich_analysis.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::KNOW)] >= 1);
+    assert(rich_analysis.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::MIND)] >= 1);
+
+    // Составные термины разрешают конфликт отдельных корней.
+    const auto network = trie.compile_morpheme_analysis("network", y_taylor);
+    assert(network.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::NET)] >= 1);
+    assert(network.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::GRAPH)] == 0);
+
+    const auto neural_network = trie.compile_morpheme_analysis(
+        "neural network model", y_taylor);
+    assert(neural_network.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::MIND)] >
+           neural_network.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::NET)]);
+
+    const auto routing_table = trie.compile_morpheme_analysis(
+        "routing table", y_taylor);
+    assert(routing_table.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::NET)] >
+           routing_table.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::FLOW)]);
+
+    const auto network_flow = trie.compile_morpheme_analysis(
+        "network flow", y_taylor);
+    assert(network_flow.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::FLOW)] >
+           network_flow.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::NET)]);
+
+    const auto russian_routing = trie.compile_morpheme_analysis(
+        "таблица маршрутов", y_taylor);
+    assert(russian_routing.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::NET)] >
+           russian_routing.cluster_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::FLOW)]);
+
     // Слово вне словаря не должно давать ложных морфем ("кот" -> "от").
     const auto [unknown_mask, unknown_count] =
         trie.compile_morpheme_mask("кот", y_taylor);

@@ -47,6 +47,7 @@ struct CoreSignals {
     std::array<float, TaylorIntentKernel::INTENT_DIM> intent{};
     std::uint64_t morpheme_mask = 0;
     int matched_morphemes = 0;
+    std::array<std::uint16_t, 20> cluster_counts{};
     int centroid_id = 0;
     int centroid_hops = 0;
     int max_flow = 0;

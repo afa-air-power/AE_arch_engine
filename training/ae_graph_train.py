@@ -29,19 +29,23 @@ class GraphDataset:
     def load(cls, path: str | pathlib.Path) -> "GraphDataset":
         data = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
         features = np.asarray(data["node_features"], dtype=np.float32)
-        adjacency = np.asarray(data["adjacency"], dtype=np.float32)
+        adjacency = np.asarray(data.get("adjacency", []), dtype=np.float32)
         labels = np.asarray(data["labels"], dtype=np.int64)
         split = np.asarray(data["split"], dtype=str)
         n = len(labels)
         if features.ndim != 2 or features.shape[0] != n:
             raise ValueError("node_features must have shape [num_nodes, num_features]")
-        if adjacency.shape != (n, n):
-            raise ValueError("adjacency must have shape [num_nodes, num_nodes]")
+        # Пустой adjacency — это граф без рёбер.  Для 'none' не нужно хранить
+        # и умножать плотную матрицу n×n: на больших корпусах это сотни МБ.
+        if adjacency.size and adjacency.shape != (n, n):
+            raise ValueError("adjacency must have shape [num_nodes, num_nodes] or be empty")
         if split.shape != (n,) or not set(split).issubset({"train", "val", "test"}):
             raise ValueError("split must contain train, val, or test for every node")
         return cls(features, adjacency, labels, split)
 
-    def normalized_adjacency(self) -> np.ndarray:
+    def normalized_adjacency(self) -> np.ndarray | None:
+        if self.adjacency.size == 0 or not np.any(self.adjacency):
+            return None
         a = self.adjacency.copy()
         np.fill_diagonal(a, 1.0)
         degree = a.sum(axis=1)
@@ -80,16 +84,24 @@ class GraphSAGEClassifier:
     def _normalize(self, x: np.ndarray) -> np.ndarray:
         return (x - self.feature_mean) / self.feature_std
 
-    def forward(self, x: np.ndarray, normalized_adjacency: np.ndarray):
+    @staticmethod
+    def _aggregate(normalized_adjacency: np.ndarray | None, values: np.ndarray) -> np.ndarray:
+        # Пустой граф — это тождественная агрегация.  Так датасет без рёбер
+        # не требует плотной матрицы n×n и не тратит на неё память/время.
+        if normalized_adjacency is None:
+            return values
+        return normalized_adjacency @ values
+
+    def forward(self, x: np.ndarray, normalized_adjacency: np.ndarray | None):
         x = self._normalize(x)
         if self.linear:
-            h0 = normalized_adjacency @ x
+            h0 = self._aggregate(normalized_adjacency, x)
             logits = h0 @ self.w2 + self.b2
             return logits, (h0, None, None, h0)
-        h0 = normalized_adjacency @ x
+        h0 = self._aggregate(normalized_adjacency, x)
         z1 = h0 @ self.w1 + self.b1
         h1 = np.maximum(z1, 0.0)
-        h2 = normalized_adjacency @ h1
+        h2 = self._aggregate(normalized_adjacency, h1)
         logits = h2 @ self.w2 + self.b2
         return logits, (h0, z1, h1, h2)
 
@@ -112,7 +124,7 @@ class GraphSAGEClassifier:
         grad_w2 = h2.T @ dlogits + weight_decay * self.w2
         grad_b2 = dlogits.sum(axis=0)
         dh2 = dlogits @ self.w2.T
-        dh1 = a.T @ dh2
+        dh1 = dh2 if a is None else a.T @ dh2
         dz1 = dh1 * (z1 > 0.0)
         grad_w1 = h0.T @ dz1 + weight_decay * self.w1
         grad_b1 = dz1.sum(axis=0)

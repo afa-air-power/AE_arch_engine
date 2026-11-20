@@ -13,6 +13,8 @@ Python-обвязка (`ctypes` + `pybind11`) и обучаемый графов
   предметные метрики и HIP-проверка Vega 7.
 - [docs/LABELING.md](docs/LABELING.md) — правила и цикл ручной разметки
   корпуса текстовых кластеров.
+- [docs/ACCURACY.md](docs/ACCURACY.md) — измеренные варианты повышения
+  точности классификатора и рекомендации по приоритету.
 - [docs/adr/README.md](docs/adr/README.md) — Architecture Decision Records:
   обоснование каждого алгоритма и технического решения.
 

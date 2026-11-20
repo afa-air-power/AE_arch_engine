@@ -16,6 +16,7 @@ AE_Arch_Engine/
 │   ├── README.md                   # Документация по сборке и API
 │   ├── TRAINING.md                 # Обучаемый контур и предметные метрики
 │   ├── LABELING.md                 # Правила и цикл ручной разметки корпуса
+│   ├── ACCURACY.md                 # Измеренные варианты повышения точности
 │   └── adr/                        # Architecture Decision Records (обоснование решений)
 ├── include/                        # Публичные заголовки (устанавливаются в <prefix>/include)
 │   ├── ae_c_api.h                  # Чистый C ABI (extern "C") для FFI (Python ctypes, Rust, Go)
@@ -282,8 +283,11 @@ feedback:  Обратный разбор: язык=ru, морфем=12, полн
 Помимо детерминированного ядра в проект добавлен обучаемый контур, который
 использует алгоритмы как источник признаков:
 
-- `include/algorithm_features.hpp` — 76-мерный вектор из trie-маски, потока
-  Диница, центроидной декомпозиции, MST/LCA-пути, Time-Ray и NL round-trip;
+- `include/algorithm_features.hpp` — 96-мерный вектор из trie-маски и
+  счётчиков кластеров, потока Диница, центроидной декомпозиции, MST/LCA-пути,
+  Time-Ray и NL round-trip;
+- `tools/make_text_cluster_synthetic.py` — детерминированная синтетическая
+  волна, проверяемая trie и попадающая только в `train`;
 - `training/ae_features.py` — сборка датасета из корпуса запросов;
 - `training/ae_graph_train.py` — GraphSAGE-подобный классификатор с явным
   backward pass, Adam, early stopping и стратифицированной кросс-валидацией;
@@ -295,9 +299,16 @@ feedback:  Обратный разбор: язык=ru, морфем=12, полн
 
 ```bash
 python3 tools/make_text_cluster_corpus.py
-python3 -m training.ae_features training/corpora/text_clusters.json data/text_clusters_features.json
-python3 -m training.ae_graph_train data/text_clusters_features.json --cv 5 \
-  --epochs 300 --hidden-dim 8 --learning-rate 0.01 --weight-decay 0.01
+python3 tools/make_text_cluster_synthetic.py
+python3 tools/merge_corpora.py training/corpora/text_clusters.json \
+  training/corpora/text_clusters_manual.json \
+  training/corpora/text_clusters_manual_v2.json \
+  training/corpora/text_clusters_synthetic.json \
+  -o training/corpora/text_clusters_expanded.json
+python3 -m training.ae_features training/corpora/text_clusters_expanded.json \
+  data/text_clusters_expanded_features.json
+python3 -m training.ae_graph_train data/text_clusters_expanded_features.json --cv 5 \
+  --epochs 400 --hidden-dim 0 --learning-rate 0.01 --weight-decay 0.01
 python3 -m benchmarks.run_all --output reports/benchmarks.json
 ```
 
@@ -313,10 +324,12 @@ HSA_OVERRIDE_GFX_VERSION=9.0.0 python3 -m training.ae_graph_hip --target gfx900
 ## Ручная разметка корпуса
 
 Seed-корпус (90 запросов) отделён от ручной разметки
-(`training/corpora/text_clusters_manual.json`, 180 запросов). Объединённый
-корпус собирается `tools/merge_corpora.py`, проверяется `tests/test_corpus.py`
-и описывается в [LABELING.md](LABELING.md): правила классов, баланс split'ов,
-текущие метрики и следующие шаги.
+(`training/corpora/text_clusters_manual.json` и
+`text_clusters_manual_v2.json`, по 180 запросов) и синтетической волны
+(`text_clusters_synthetic.json`, 4 500 запросов только в `train`).
+Объединённый корпус собирается `tools/merge_corpora.py`, проверяется
+`tests/test_corpus.py` и описывается в [LABELING.md](LABELING.md): правила
+классов, баланс split'ов, текущие метрики и следующие шаги.
 
 ## Архитектурные решения (ADR)
 

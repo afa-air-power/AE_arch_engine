@@ -26,7 +26,7 @@
 
 namespace ae::mind {
 
-// Раскладка вектора (56 признаков, все приведены к [0, 1]):
+// Раскладка вектора (96 признаков, все приведены к [0, 1]):
 //   [ 0..15] intent-вектор Taylor-Intent Kernel
 //   [16..24] морфемная маска и словарь trie
 //   [25..27] центроидная декомпозиция Mega RAG
@@ -36,8 +36,9 @@ namespace ae::mind {
 //   [46..50] обратный разбор NL (recall/precision/passes)
 //   [51..55] метаданные запроса и плотность морфем
 //   [56..75] индикаторы 20 семантических кластеров корней
+//   [76..95] поддержка кластеров: log1p(число морфем кластера)
 struct AlgorithmFeatureVector {
-    static constexpr int DIM = 76;
+    static constexpr int DIM = 96;
     std::array<float, DIM> values{};
 
     [[nodiscard]] const float* data() const noexcept { return values.data(); }
@@ -70,6 +71,13 @@ inline constexpr std::array<std::string_view, AlgorithmFeatureVector::DIM>
         "cluster_compute", "cluster_net", "cluster_phys", "cluster_chem",
         "cluster_bio", "cluster_med", "cluster_econ", "cluster_law",
         "cluster_soc", "cluster_quality", "cluster_nature", "cluster_action",
+        "cluster_count_graph", "cluster_count_know", "cluster_count_flow",
+        "cluster_count_text", "cluster_count_num", "cluster_count_time",
+        "cluster_count_space", "cluster_count_mind", "cluster_count_compute",
+        "cluster_count_net", "cluster_count_phys", "cluster_count_chem",
+        "cluster_count_bio", "cluster_count_med", "cluster_count_econ",
+        "cluster_count_law", "cluster_count_soc", "cluster_count_quality",
+        "cluster_count_nature", "cluster_count_action",
     }};
 
 namespace feature_detail {
@@ -91,6 +99,7 @@ inline AlgorithmFeatureVector build_algorithm_features(
     const std::array<float, TaylorIntentKernel::INTENT_DIM>& intent,
     std::uint64_t morpheme_mask,
     int matched_morphemes,
+    const std::array<std::uint16_t, 20>& cluster_counts,
     std::size_t dictionary_size,
     std::size_t query_word_count,
     std::size_t query_bytes,
@@ -223,6 +232,16 @@ inline AlgorithmFeatureVector build_algorithm_features(
         const std::uint64_t bit = 1ULL << (28 + cluster);
         v[56 + static_cast<std::size_t>(cluster)] =
             (morpheme_mask & bit) ? 1.0f : 0.0f;
+    }
+
+    // [76..95] поддержка кластеров: log1p(число морфем кластера).
+    // Маска отвечает на вопрос "тема встретилась", счётчик — "насколько
+    // сильно". Это различает запросы с одинаковым набором битов.
+    const double count_scale = 1.0 / std::log1p(16.0);
+    for (int cluster = 0; cluster < 20; ++cluster) {
+        const double count = static_cast<double>(cluster_counts[cluster]);
+        v[76 + static_cast<std::size_t>(cluster)] =
+            clamp01(std::log1p(count) * count_scale);
     }
 
     return features;

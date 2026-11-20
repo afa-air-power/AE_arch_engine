@@ -1,0 +1,1329 @@
+{
+  "name": "text_clusters_manual_v2",
+  "version": 2,
+  "labels": [
+    "GRAPH",
+    "KNOW",
+    "FLOW",
+    "TEXT",
+    "NUM",
+    "COMPUTE",
+    "MIND",
+    "NET",
+    "ACTION"
+  ],
+  "samples": [
+    {
+      "query": "поиск мостов и точек сочленения в графе",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "минимальное остовное дерево и вес рёбер",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "хранение графа в списке смежности",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "эйлерова цепь и степень вершины",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "диаметр дерева и глубина узла",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "центр и радиус связного графа",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "ориентированный ациклический граф и топологическая сортировка",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "двудольный граф и паросочетание",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "кратчайший путь в взвешенном графе",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "matrix representation of a directed graph",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard NUM/GRAPH: представление графа матрицей"
+    },
+    {
+      "query": "tree decomposition and graph minor",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "graph coloring and chromatic number",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard NUM/GRAPH: number — свойство графа"
+    },
+    {
+      "query": "смежные вершины и матрица инцидентности",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "плотность графа и число рёбер",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "network topology as a graph of nodes",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard GRAPH/NET: топология сети описана как граф"
+    },
+    {
+      "query": "spanning tree of a network topology",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard GRAPH/NET: остовное дерево — структура графа"
+    },
+    {
+      "query": "компоненты сильной связности орграфа",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "изоморфизм деревьев и автоморфизм графа",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "graph adjacency and network topology",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard GRAPH/NET: adjacency — свойство графа"
+    },
+    {
+      "query": "network connectivity and graph edge cut",
+      "label": 0,
+      "cluster": "GRAPH",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard GRAPH/NET: разрез — операция над графом"
+    },
+    {
+      "query": "правила вывода и база предикатов",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "декларативное знание и процедурное",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "аргументация и логическое следствие",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "проверка гипотезы и достоверность",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "экспертная система и правила",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "контекст диалога и смысл высказывания",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "тезаурус синонимов и понятий",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "машинное обучение и обобщение",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard KNOW/MIND: обобщение — когнитивный процесс"
+    },
+    {
+      "query": "представление знаний и вывод",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "reasoning and knowledge representation",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "онтологический граф и отношения",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard KNOW/GRAPH: граф — носитель онтологии"
+    },
+    {
+      "query": "семантическая сеть понятий",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard KNOW/NET: сеть — форма организации знаний"
+    },
+    {
+      "query": "семантическая близость и значение слова",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard KNOW/TEXT: значение слова — семантика"
+    },
+    {
+      "query": "онтология и категоризация сущностей",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "semantic text and knowledge extraction",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard KNOW/TEXT: извлекается знание из текста"
+    },
+    {
+      "query": "context and meaning of knowledge text",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard KNOW/TEXT: контекст знания важнее формы текста"
+    },
+    {
+      "query": "логический вывод и противоречие",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "память и воспроизведение знаний",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "knowledge graph and semantic relations",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard KNOW/GRAPH: граф знаний — про знания"
+    },
+    {
+      "query": "text corpus and semantic knowledge",
+      "label": 1,
+      "cluster": "KNOW",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard KNOW/TEXT: корпус — источник знаний"
+    },
+    {
+      "query": "буферизация и обратное давление",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "планировщик задач и приоритеты",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "распределение нагрузки между потоками",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "синхронизация и блокировки",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard FLOW/ACTION: блокировка — часть потока выполнения"
+    },
+    {
+      "query": "асинхронные задачи и очередь",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "жизненный цикл процесса",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "пропускная способность и задержка",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "backpressure and stream processing",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "scheduler and task queue",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "каскад этапов и передача данных",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "параллелизм и конкурентность",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "data pipeline and network transfer",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard FLOW/NET: transfer — этап конвейера"
+    },
+    {
+      "query": "конвейер сборки и этапы обработки",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard FLOW/COMPUTE: сборка как поток этапов"
+    },
+    {
+      "query": "потоковая обработка событий",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "network flow and channel throughput",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard FLOW/NET: flow — предмет, сеть — среда"
+    },
+    {
+      "query": "stream routing and network packets",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard FLOW/NET: routing — этап обработки потока"
+    },
+    {
+      "query": "запуск и остановка конвейера",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "повторная обработка и итерация",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "queue buffer and network throughput",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard FLOW/NET: throughput — свойство потока"
+    },
+    {
+      "query": "routing dispatch and network traffic",
+      "label": 2,
+      "cluster": "FLOW",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard FLOW/NET: dispatch — управление потоком"
+    },
+    {
+      "query": "морфологический словарь и аффиксы",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "синтаксическое дерево предложения",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard TEXT/GRAPH: дерево — структура разбора"
+    },
+    {
+      "query": "лемматизация и стемминг",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "частеречная разметка текста",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "орфографическая проверка и опечатки",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "пунктуационный анализ предложения",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "перевод и выравнивание предложений",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "транслитерация и транскрипция",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "корпусная лингвистика и частоты",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "стилометрия и авторство текста",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "named entity recognition and text",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "tokenization and sentence segmentation",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "фразеология и устойчивые выражения",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "грамматический разбор и падеж",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "text meaning and knowledge context",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard TEXT/KNOW: значение извлекается из текста"
+    },
+    {
+      "query": "word meaning in text corpus",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard TEXT/KNOW: слово и корпус — единицы текста"
+    },
+    {
+      "query": "алфавит и правила орфографии",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "перевод идиом и метафор",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "corpus text and semantic tagging",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard TEXT/KNOW: разметка текста, а не база знаний"
+    },
+    {
+      "query": "knowledge text and grammar",
+      "label": 3,
+      "cluster": "TEXT",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard TEXT/KNOW: грамматика определяет текст"
+    },
+    {
+      "query": "собственные значения и собственные векторы",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "разложение матрицы и сингулярные числа",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "численное интегрирование и погрешность",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "метод Ньютона и сходимость",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "градиентный спуск и скорость обучения",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "теория вероятностей и математическое ожидание",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "доверительный интервал и статистика",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "линейная регрессия и ошибка",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "преобразование Фурье и спектр",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "дискретная математика и комбинаторика",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "matrix decomposition and eigenvalue",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "numerical optimization and gradient",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "производная и частные производные",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "ряд Тейлора и остаточный член",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "graph spectrum and matrix eigenvalue",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard NUM/GRAPH: спектр — матричная величина"
+    },
+    {
+      "query": "vector space and graph adjacency matrix",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard NUM/GRAPH: матрица смежности — объект алгебры"
+    },
+    {
+      "query": "интеграл и численная аппроксимация",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "вероятностное распределение и квантиль",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "algebraic graph theory and spectrum",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard NUM/GRAPH: теория графов через алгебру"
+    },
+    {
+      "query": "statistical metric and graph degree",
+      "label": 4,
+      "cluster": "NUM",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard NUM/GRAPH: степень — числовая метрика"
+    },
+    {
+      "query": "виртуальная память и страничная адресация",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "системный вызов и планировщик ядра",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard COMPUTE/FLOW: планировщик — часть ОС"
+    },
+    {
+      "query": "JIT компиляция и машинный код",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "линкер символов и объектный файл",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "профилирование программы и счётчики",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "сборщик мусора и управление памятью",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "многопоточность и атомарные инструкции",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "контейнер и изоляция процессов",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "драйвер устройства и прерывание",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "кэш процессора и промахи",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "исходный код и статический анализ",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard COMPUTE/ACTION: анализ кода — инструмент разработки"
+    },
+    {
+      "query": "бинарный формат и таблица символов",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "виртуальная машина и байткод",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "оптимизация компилятора и регистровое распределение",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "refactor source module and build cache",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard COMPUTE/ACTION: refactor ради сборки модуля"
+    },
+    {
+      "query": "build system dependency and code generation",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard COMPUTE/ACTION: генерация кода — этап сборки"
+    },
+    {
+      "query": "сборка проекта и линковка библиотек",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "отладчик и точка останова",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "transform source code and compile module",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard COMPUTE/ACTION: преобразование ради компиляции"
+    },
+    {
+      "query": "compile module after refactor",
+      "label": 5,
+      "cluster": "COMPUTE",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard COMPUTE/ACTION: цель — компиляция модуля"
+    },
+    {
+      "query": "нейронная сеть мозга и синапсы",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard MIND/NET: сеть — биологическая структура"
+    },
+    {
+      "query": "рабочая память и внимание",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "эмоциональный интеллект",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "принятие решений и когнитивные искажения",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "обучение и нейропластичность",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "мотивация и вознаграждение",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "восприятие и сенсорная интеграция",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "психология поведения и рефлексы",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "сознание и субъективный опыт",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "прогнозирование и интуиция",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "cognitive load and attention",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "decision making and emotion",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "память и забывание",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "стресс и адаптация",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "brain network and neural connectivity",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard MIND/NET: связность нейронов мозга"
+    },
+    {
+      "query": "neural network model of cognition",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard MIND/NET: модель познания, а не сеть связи"
+    },
+    {
+      "query": "инсайт и творческое мышление",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "личность и темперамент",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "neural graph and cognitive perception",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard MIND/GRAPH: граф нейронов как модель психики"
+    },
+    {
+      "query": "network of neurons and behavior",
+      "label": 6,
+      "cluster": "MIND",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard MIND/NET: поведение определяется нейронами"
+    },
+    {
+      "query": "DNS домен и разрешение адреса",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "TCP соединение и подтверждение пакетов",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "HTTP запрос ответ и заголовки",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "маршрутизация пакетов по таблице маршрутов",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "NAT трансляция адресов и портов",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "VPN туннель и шифрование трафика",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "DHCP выдача адреса клиенту",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "балансировщик нагрузки и сетевой трафик",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "Ethernet кадр и MAC адрес",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "Wi-Fi канал и беспроводное соединение",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "прокси сервер и кэширование ответов",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard NET/COMPUTE: кэш принадлежит сетевому прокси"
+    },
+    {
+      "query": "сетевой экран и фильтрация пакетов",
+      "label": 7,
+      "cluster": "NET",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard NET/ACTION: фильтрация — функция экрана"
+    },
+    {
+      "query": "UDP датаграмма и порт получателя",
+      "label": 7,
+      "cluster": "NET",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "сетевой шлюз и таблица маршрутизации",
+      "label": 7,
+      "cluster": "NET",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "graph of network links and routing table",
+      "label": 7,
+      "cluster": "NET",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard NET/GRAPH: граф описывает сеть связи"
+    },
+    {
+      "query": "сетевая топология и степень узла связи",
+      "label": 7,
+      "cluster": "NET",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard NET/GRAPH: степень узла — свойство сети"
+    },
+    {
+      "query": "TLS сертификат и защищённая сессия",
+      "label": 7,
+      "cluster": "NET",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "сетевой пакет и контрольная сумма",
+      "label": 7,
+      "cluster": "NET",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "router adjacency and network graph",
+      "label": 7,
+      "cluster": "NET",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard NET/GRAPH: adjacency — модель сети"
+    },
+    {
+      "query": "firewall rules and graph of connections",
+      "label": 7,
+      "cluster": "NET",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard NET/GRAPH: граф соединений — сеть"
+    },
+    {
+      "query": "удаление дубликатов и сортировка списка",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "фильтрация записей по условию",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "слияние двух отсортированных массивов",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "обновление записи в базе",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "вставка элемента и сдвиг массива",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "извлечение подстроки и замена",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "конвертация формата и сериализация",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "сжатие архива и распаковка",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "резервное копирование и восстановление",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "пакетная обработка и агрегация",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "автоматизация развёртывания",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train",
+      "source": "manual-v2"
+    },
+    {
+      "query": "очистка кэша и перезапуск",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "train",
+      "source": "manual-v2",
+      "notes": "hard ACTION/COMPUTE: очистка — операция над кэшем"
+    },
+    {
+      "query": "поиск и замена в документе",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "миграция схемы и преобразование данных",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "val",
+      "source": "manual-v2"
+    },
+    {
+      "query": "refactor and transform source module",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard ACTION/COMPUTE: преобразование кода — действие"
+    },
+    {
+      "query": "search and replace code symbols",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "val",
+      "source": "manual-v2",
+      "notes": "hard ACTION/COMPUTE: поиск и замена — операции"
+    },
+    {
+      "query": "копирование файлов и проверка целостности",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "генерация отчёта и агрегация метрик",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard ACTION/NUM: агрегация метрик — операция"
+    },
+    {
+      "query": "sort and transform records",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "test",
+      "source": "manual-v2"
+    },
+    {
+      "query": "refactor module and update dependency",
+      "label": 8,
+      "cluster": "ACTION",
+      "split": "test",
+      "source": "manual-v2",
+      "notes": "hard ACTION/COMPUTE: обновление зависимости — действие"
+    }
+  ]
+}

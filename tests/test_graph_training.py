@@ -8,6 +8,8 @@ import pathlib
 import sys
 import tempfile
 
+import numpy as np
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
@@ -34,6 +36,21 @@ def main() -> None:
         restored = load_checkpoint(checkpoint_path)
         assert evaluate(restored, dataset) == metrics
         json.loads(checkpoint_path.read_text(encoding="utf-8"))
+
+        # Empty adjacency means identity aggregation: training must work
+        # without a dense n×n matrix for both linear and hidden models.
+        n = 24
+        features = np.zeros((n, 4), dtype=np.float32)
+        labels = np.arange(n) % 3
+        features[np.arange(n), labels] = 1.0
+        split = np.array(["train"] * (n - 6) + ["val"] * 3 + ["test"] * 3, dtype=str)
+        sparse = GraphDataset(features, np.zeros((0, 0), dtype=np.float32), labels, split)
+        assert sparse.normalized_adjacency() is None
+        for hidden in (0, 8):
+            model, history = train(sparse, epochs=4, hidden_dim=hidden)
+            assert len(history) == 4
+            assert set(evaluate(model, sparse)) == {"train", "val", "test"}
+
     print("[PASS] Graph training contract tests succeeded!")
 
 

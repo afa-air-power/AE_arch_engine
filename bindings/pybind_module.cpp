@@ -95,6 +95,17 @@ PYBIND11_MODULE(ae_mind_pybind, m) {
                 const std::array<float, 16>& intent) {
                  return self.compile_morpheme_mask(text, intent);
              },
+             py::arg("text"), py::arg("intent"))
+        .def("compile_morpheme_analysis",
+             [](const MorphemicPatriciaTrie& self, std::string_view text,
+                const std::array<float, 16>& intent) {
+                 const auto analysis = self.compile_morpheme_analysis(text, intent);
+                 return py::make_tuple(
+                     analysis.mask,
+                     analysis.matched_morphemes,
+                     std::vector<std::uint16_t>(analysis.cluster_counts.begin(),
+                                                analysis.cluster_counts.end()));
+             },
              py::arg("text"), py::arg("intent"));
 
     // ---- Mega RAG centroid graph ----------------------------------------

@@ -19,12 +19,20 @@ import numpy as np
 
 from training.ae_core import load_core
 
-FEATURE_DIM = 76
+FEATURE_DIM = 96
+
+# Индексы девяти кластеров, которые соответствуют текущей таксономии меток.
+# Остальные одиннадцать (time/space/phys/.../nature) в этом корпусе почти
+# всегда нулевые и только добавляют дисперсию.
+CLUSTER_CORE: tuple[int, ...] = (0, 1, 2, 3, 4, 7, 8, 9, 19)
 
 # Группы признаков. intent/centroid/timeray выводятся из байтового хэша запроса
 # и кодируют его идентичность, а не смысл, поэтому по умолчанию исключены:
 # на малой выборке они дают запоминание вместо обобщения.
-FEATURE_GROUPS: dict[str, range] = {
+# clusters — наличие темы (20 битов), cluster_counts — её поддержка
+# (log1p числа морфем). Вместе они различают запросы с одинаковым набором
+# битов, например "graph coloring" и "graph spectrum".
+FEATURE_GROUPS: dict[str, range | tuple[int, ...]] = {
     "intent": range(0, 16),
     "morphology": range(16, 25),
     "centroid": range(25, 28),
@@ -34,10 +42,13 @@ FEATURE_GROUPS: dict[str, range] = {
     "nl": range(46, 51),
     "query": range(51, 56),
     "clusters": range(56, 76),
+    "cluster_counts": range(76, 96),
+    "cluster_core": tuple(56 + index for index in CLUSTER_CORE),
+    "cluster_counts_core": tuple(76 + index for index in CLUSTER_CORE),
 }
 
 DEFAULT_GROUPS: tuple[str, ...] = (
-    "morphology", "flow", "topology", "nl", "query", "clusters",
+    "cluster_core", "cluster_counts_core",
 )
 
 
@@ -176,7 +187,9 @@ def build_adjacency(
     min_similarity: float = 0.15,
 ) -> np.ndarray:
     if graph == "none":
-        return np.zeros((features.shape[0], features.shape[0]), dtype=np.float32)
+        # Пустой граф кодируется нулевой матрицей 0×0: обучение трактует это
+        # как тождественную агрегацию и не требует n×n матрицы.
+        return np.zeros((0, 0), dtype=np.float32)
     if graph == "lexical":
         return lexical_adjacency(queries, min_similarity)
     if graph == "knn":

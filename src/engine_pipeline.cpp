@@ -138,19 +138,21 @@ CoreSignals AEEnginePipeline::compute_core_signals(std::string_view query,
     }
 
     signals.intent = intent_kernel_.forward_taylor(features);
-    auto [mask, m_cnt] = trie_.compile_morpheme_mask(query, signals.intent);
-    signals.morpheme_mask = mask;
-    signals.matched_morphemes = m_cnt;
+    const auto morpheme_analysis = trie_.compile_morpheme_analysis(query, signals.intent);
+    signals.morpheme_mask = morpheme_analysis.mask;
+    signals.matched_morphemes = morpheme_analysis.matched_morphemes;
+    signals.cluster_counts = morpheme_analysis.cluster_counts;
 
     if (target_hint < 0) {
-        std::uint64_t hash_val = mask ^ static_cast<std::uint64_t>(query.size() * 1315423911ULL);
+        std::uint64_t hash_val = signals.morpheme_mask ^
+            static_cast<std::uint64_t>(query.size() * 1315423911ULL);
         target_hint = static_cast<int>(hash_val % static_cast<std::uint64_t>(rag_.n_nodes));
     }
     auto [cid, hops] = rag_.locate_centroid_cluster(target_hint);
     signals.centroid_id = cid;
     signals.centroid_hops = hops;
 
-    decoder_.apply_boolean_mask_and_reset(mask);
+    decoder_.apply_boolean_mask_and_reset(signals.morpheme_mask);
     signals.max_flow = decoder_.max_flow(0, sink_node_);
 
     // Верифицированная цепочка — единственный путь root -> sink в остовном
@@ -202,6 +204,7 @@ AlgorithmFeatureVector AEEnginePipeline::extract_features(std::string_view query
         signals.intent,
         signals.morpheme_mask,
         signals.matched_morphemes,
+        signals.cluster_counts,
         trie_.morpheme_count(),
         count_words(query),
         query.size(),
