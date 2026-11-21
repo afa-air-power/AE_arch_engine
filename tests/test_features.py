@@ -83,8 +83,8 @@ def main() -> None:
     assert 0 not in columns and 25 not in columns, "hash-derived groups excluded by default"
     assert 56 in columns and 76 in columns, "default model uses cluster bits and counts"
     assert 105 in columns and 114 in columns, "default uses chunk subtree and depth"
-    assert 115 in columns and 117 in columns, "default uses RDT rotations"
-    assert len(columns) == 31
+    assert 115 not in columns and 117 not in columns, "RDT is opt-in"
+    assert len(columns) == 28
     assert all(group in FEATURE_GROUPS for group in DEFAULT_GROUPS)
 
     samples = [
@@ -94,8 +94,8 @@ def main() -> None:
     ]
     dataset = build_dataset(samples, extractor=extractor, graph="lexical")
     assert len(dataset["node_features"]) == 3
-    assert len(dataset["node_features"][0]) == 31
-    assert dataset["meta"]["feature_dim"] == 31
+    assert len(dataset["node_features"][0]) == 28
+    assert dataset["meta"]["feature_dim"] == 28
     adjacency = np.asarray(dataset["adjacency"])
     assert adjacency.shape == (3, 3)
     assert np.allclose(adjacency, adjacency.T)

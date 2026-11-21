@@ -19,7 +19,7 @@ import numpy as np
 
 from training.ae_core import load_core
 
-FEATURE_DIM = 115
+FEATURE_DIM = 118
 
 # Индексы девяти кластеров, которые соответствуют текущей таксономии меток.
 # Остальные одиннадцать (time/space/phys/.../nature) в этом корпусе почти
@@ -54,7 +54,7 @@ FEATURE_GROUPS: dict[str, range | tuple[int, ...]] = {
 }
 
 DEFAULT_GROUPS: tuple[str, ...] = (
-    "cluster_core", "cluster_counts_core", "chunk_core", "sentence", "rdt",
+    "cluster_core", "cluster_counts_core", "chunk_core", "sentence",
 )
 
 

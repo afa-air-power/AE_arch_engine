@@ -17,7 +17,7 @@
 
 ## Решение
 
-**Признаки.** 115-мерный вектор `AlgorithmFeatureVector` в `[0, 1]`,
+**Признаки.** 118-мерный вектор `AlgorithmFeatureVector` в `[0, 1]`,
 собранный из выходов уже работающих модулей:
 
 ```text
@@ -55,6 +55,8 @@
 идентичность, а не смысл. Текущий default — 28 признаков:
 `cluster_core` (9 битов) + `cluster_counts_core` (9 счётчиков) +
 `chunk_core` (9 локальных максимумов) + `sentence` (глубина дерева).
+Группа `rdt` содержит 3 дополнительных признака структурных поворотов и
+включается отдельно для графового режима.
 
 **Модель.** `GraphSAGEClassifier` — двухслойный mean-aggregation
 классификатор с явным backward pass на NumPy:
@@ -137,7 +139,7 @@
 
 ## Ссылки
 
-- Признаки: `include/algorithm_features.hpp` (`DIM = 115`,
+- Признаки: `include/algorithm_features.hpp` (`DIM = 118`,
   `kAlgorithmFeatureNames`).
 - Сборка датасета: `training/ae_features.py`.
 - Обучение: `training/ae_graph_train.py`.
