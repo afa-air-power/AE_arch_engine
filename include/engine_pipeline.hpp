@@ -26,6 +26,7 @@ namespace ae::mind {
 struct InferenceResult {
     std::array<float, TaylorIntentKernel::INTENT_DIM> intent_vector{};
     lang::ParseResult morphology;
+    MorphemicPatriciaTrie::SentenceAnalysis sentence;
     std::uint64_t morpheme_mask = 0;
     int matched_morphemes = 0;
     int centroid_id = 0;
@@ -48,6 +49,7 @@ struct CoreSignals {
     std::uint64_t morpheme_mask = 0;
     int matched_morphemes = 0;
     std::array<std::uint16_t, 20> cluster_counts{};
+    MorphemicPatriciaTrie::SentenceAnalysis sentence;
     int centroid_id = 0;
     int centroid_hops = 0;
     int max_flow = 0;

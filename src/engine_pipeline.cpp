@@ -142,6 +142,9 @@ CoreSignals AEEnginePipeline::compute_core_signals(std::string_view query,
     signals.morpheme_mask = morpheme_analysis.mask;
     signals.matched_morphemes = morpheme_analysis.matched_morphemes;
     signals.cluster_counts = morpheme_analysis.cluster_counts;
+    // Дерево предложения: чанки, головы и поддержка по поддеревьям. Это тот же
+    // детерминированный разбор, что и маска, но с сохранённой структурой.
+    signals.sentence = trie_.compile_sentence_analysis(query, signals.intent);
 
     if (target_hint < 0) {
         std::uint64_t hash_val = signals.morpheme_mask ^
@@ -205,6 +208,7 @@ AlgorithmFeatureVector AEEnginePipeline::extract_features(std::string_view query
         signals.morpheme_mask,
         signals.matched_morphemes,
         signals.cluster_counts,
+        signals.sentence,
         trie_.morpheme_count(),
         count_words(query),
         query.size(),
@@ -235,6 +239,7 @@ InferenceResult AEEnginePipeline::infer(std::string_view query,
 
     InferenceResult res{};
     res.morphology = std::move(signals.morphology);
+    res.sentence = std::move(signals.sentence);
     res.intent_vector = signals.intent;
     res.morpheme_mask = signals.morpheme_mask;
     res.matched_morphemes = signals.matched_morphemes;

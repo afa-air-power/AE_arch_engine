@@ -24,7 +24,7 @@ from training.ae_features import (
 def main() -> None:
     extractor = AlgorithmFeatureExtractor(rag_nodes=2000)
     names = extractor.feature_names
-    assert len(names) == 96, names
+    assert len(names) == 118, names
     assert names[0] == "intent_0"
     assert names[16] == "mask_popcount"
     assert names[28] == "max_flow"
@@ -32,10 +32,17 @@ def main() -> None:
     assert names[75] == "cluster_action"
     assert names[76] == "cluster_count_graph"
     assert names[95] == "cluster_count_action"
+    assert names[96] == "head_graph"
+    assert names[104] == "head_action"
+    assert names[105] == "chunk_graph"
+    assert names[113] == "chunk_action"
+    assert names[114] == "sentence_depth"
+    assert names[115] == "rdt_rotations"
+    assert names[117] == "rdt_depth"
 
     first = extractor.extract("граф знаний и поток данных")
     second = extractor.extract("граф знаний и поток данных")
-    assert first.shape == (96,)
+    assert first.shape == (118,)
     assert np.all(np.isfinite(first))
     assert np.all(first >= 0.0) and np.all(first <= 1.0)
     assert np.array_equal(first, second), "features must be deterministic"
@@ -58,10 +65,26 @@ def main() -> None:
         "cluster counts must distinguish queries with an identical mask"
     )
 
+    # Признаки поддерева: голова чанка различает конфликтующие фразы, даже
+    # когда глобальные счётчики почти совпадают.
+    topology = extractor.extract("network topology")
+    neural = extractor.extract("neural network")
+    assert topology[96] > topology[105 + 7], (
+        "head of 'network topology' must be GRAPH, not NET"
+    )
+    assert neural[105 + 5] > neural[105 + 7], (
+        "'neural network' chunk support must favour MIND over NET"
+    )
+    assert first[114] > 0.0, "sentence depth must be populated"
+    assert first[115] > 0.0, "RDT rotations must be populated"
+    assert first[117] > 0.0, "normalized tree depth must be populated"
+
     columns = group_columns(DEFAULT_GROUPS)
     assert 0 not in columns and 25 not in columns, "hash-derived groups excluded by default"
     assert 56 in columns and 76 in columns, "default model uses cluster bits and counts"
-    assert len(columns) == 18
+    assert 105 in columns and 114 in columns, "default uses chunk subtree and depth"
+    assert 115 in columns and 117 in columns, "default uses RDT rotations"
+    assert len(columns) == 31
     assert all(group in FEATURE_GROUPS for group in DEFAULT_GROUPS)
 
     samples = [
@@ -71,8 +94,8 @@ def main() -> None:
     ]
     dataset = build_dataset(samples, extractor=extractor, graph="lexical")
     assert len(dataset["node_features"]) == 3
-    assert len(dataset["node_features"][0]) == 18
-    assert dataset["meta"]["feature_dim"] == 18
+    assert len(dataset["node_features"][0]) == 31
+    assert dataset["meta"]["feature_dim"] == 31
     adjacency = np.asarray(dataset["adjacency"])
     assert adjacency.shape == (3, 3)
     assert np.allclose(adjacency, adjacency.T)

@@ -20,6 +20,56 @@ PYBIND11_MODULE(ae_mind_pybind, m) {
         .def_readonly("estimated_tokens", &ASTPromptResult::estimated_tokens)
         .def_readonly("explainable_trace", &ASTPromptResult::explainable_trace);
 
+    py::class_<MorphemicPatriciaTrie::SentenceToken>(m, "SentenceToken")
+        .def_readonly("text", &MorphemicPatriciaTrie::SentenceToken::text)
+        .def_readonly("begin", &MorphemicPatriciaTrie::SentenceToken::begin)
+        .def_readonly("end", &MorphemicPatriciaTrie::SentenceToken::end)
+        .def_readonly("function_word", &MorphemicPatriciaTrie::SentenceToken::function_word)
+        .def_readonly("starts_chunk", &MorphemicPatriciaTrie::SentenceToken::starts_chunk)
+        .def_property_readonly("cluster_counts", [](const MorphemicPatriciaTrie::SentenceToken& token) {
+            return std::vector<std::uint16_t>(token.analysis.cluster_counts.begin(),
+                                               token.analysis.cluster_counts.end());
+        });
+
+    py::class_<MorphemicPatriciaTrie::SentenceNode>(m, "SentenceNode")
+        .def_readonly("head_token", &MorphemicPatriciaTrie::SentenceNode::head_token)
+        .def_readonly("parent", &MorphemicPatriciaTrie::SentenceNode::parent)
+        .def_readonly("normalized_parent", &MorphemicPatriciaTrie::SentenceNode::normalized_parent)
+        .def_readonly("depth", &MorphemicPatriciaTrie::SentenceNode::depth)
+        .def_readonly("normalized_depth", &MorphemicPatriciaTrie::SentenceNode::normalized_depth)
+        .def_readonly("begin_token", &MorphemicPatriciaTrie::SentenceNode::begin_token)
+        .def_readonly("end_token", &MorphemicPatriciaTrie::SentenceNode::end_token)
+        .def_property_readonly("cluster_counts", [](const MorphemicPatriciaTrie::SentenceNode& node) {
+            return std::vector<std::uint16_t>(node.counts.begin(), node.counts.end());
+        });
+
+    py::class_<MorphemicPatriciaTrie::TreeRotation>(m, "TreeRotation")
+        .def_readonly("child", &MorphemicPatriciaTrie::TreeRotation::child)
+        .def_readonly("parent", &MorphemicPatriciaTrie::TreeRotation::parent)
+        .def_readonly("pivot", &MorphemicPatriciaTrie::TreeRotation::pivot)
+        .def_readonly("direction", &MorphemicPatriciaTrie::TreeRotation::direction)
+        .def_readonly("before_depth", &MorphemicPatriciaTrie::TreeRotation::before_depth)
+        .def_readonly("after_depth", &MorphemicPatriciaTrie::TreeRotation::after_depth);
+
+    py::class_<MorphemicPatriciaTrie::SentenceAnalysis>(m, "SentenceAnalysis")
+        .def_readonly("tokens", &MorphemicPatriciaTrie::SentenceAnalysis::tokens)
+        .def_readonly("nodes", &MorphemicPatriciaTrie::SentenceAnalysis::nodes)
+        .def_readonly("rotations", &MorphemicPatriciaTrie::SentenceAnalysis::rotations)
+        .def_readonly("normalized_root", &MorphemicPatriciaTrie::SentenceAnalysis::normalized_root)
+        .def_property_readonly("root_counts", [](const MorphemicPatriciaTrie::SentenceAnalysis& analysis) {
+            return std::vector<std::uint16_t>(analysis.root_counts.begin(),
+                                               analysis.root_counts.end());
+        })
+        .def_property_readonly("head_counts", [](const MorphemicPatriciaTrie::SentenceAnalysis& analysis) {
+            return std::vector<std::uint16_t>(analysis.head_counts.begin(),
+                                               analysis.head_counts.end());
+        })
+        .def_property_readonly("chunk_max_counts", [](const MorphemicPatriciaTrie::SentenceAnalysis& analysis) {
+            return std::vector<std::uint16_t>(analysis.chunk_max_counts.begin(),
+                                               analysis.chunk_max_counts.end());
+        })
+        .def_readonly("max_depth", &MorphemicPatriciaTrie::SentenceAnalysis::max_depth);
+
     py::class_<NaturalLanguageReport>(m, "NaturalLanguageReport")
         .def_readonly("text", &NaturalLanguageReport::text)
         .def_readonly("feedback", &NaturalLanguageReport::feedback)
@@ -31,6 +81,7 @@ PYBIND11_MODULE(ae_mind_pybind, m) {
 
     py::class_<InferenceResult>(m, "InferenceResult")
         .def_readonly("intent_vector", &InferenceResult::intent_vector)
+        .def_readonly("sentence", &InferenceResult::sentence)
         .def_readonly("morpheme_mask", &InferenceResult::morpheme_mask)
         .def_readonly("matched_morphemes", &InferenceResult::matched_morphemes)
         .def_readonly("centroid_id", &InferenceResult::centroid_id)
@@ -105,6 +156,64 @@ PYBIND11_MODULE(ae_mind_pybind, m) {
                      analysis.matched_morphemes,
                      std::vector<std::uint16_t>(analysis.cluster_counts.begin(),
                                                 analysis.cluster_counts.end()));
+             },
+             py::arg("text"), py::arg("intent"))
+        .def("compile_sentence_analysis",
+             [](const MorphemicPatriciaTrie& self, std::string_view text,
+                const std::array<float, 16>& intent) {
+                 const auto analysis = self.compile_sentence_analysis(text, intent);
+                 py::list tokens;
+                 for (const auto& token : analysis.tokens) {
+                     py::dict item;
+                     item["text"] = std::string(token.text);
+                     item["begin"] = token.begin;
+                     item["end"] = token.end;
+                     item["function_word"] = token.function_word;
+                     item["starts_chunk"] = token.starts_chunk;
+                     item["counts"] = std::vector<std::uint16_t>(
+                         token.analysis.cluster_counts.begin(),
+                         token.analysis.cluster_counts.end());
+                     tokens.append(item);
+                 }
+                 py::list nodes;
+                 for (const auto& node : analysis.nodes) {
+                     py::dict item;
+                     item["head_token"] = node.head_token;
+                     item["parent"] = node.parent;
+                     item["normalized_parent"] = node.normalized_parent;
+                     item["depth"] = node.depth;
+                     item["normalized_depth"] = node.normalized_depth;
+                     item["begin_token"] = node.begin_token;
+                     item["end_token"] = node.end_token;
+                     item["counts"] = std::vector<std::uint16_t>(
+                         node.counts.begin(), node.counts.end());
+                     nodes.append(item);
+                 }
+                 py::dict out;
+                 py::list rotations;
+                 for (const auto& rotation : analysis.rotations) {
+                     py::dict item;
+                     item["child"] = rotation.child;
+                     item["parent"] = rotation.parent;
+                     item["pivot"] = rotation.pivot;
+                     item["direction"] = rotation.direction;
+                     item["before_depth"] = rotation.before_depth;
+                     item["after_depth"] = rotation.after_depth;
+                     rotations.append(item);
+                 }
+                 out["tokens"] = tokens;
+                 out["nodes"] = nodes;
+                 out["rotations"] = rotations;
+                 out["normalized_root"] = analysis.normalized_root;
+                 out["root_counts"] = std::vector<std::uint16_t>(
+                     analysis.root_counts.begin(), analysis.root_counts.end());
+                 out["head_counts"] = std::vector<std::uint16_t>(
+                     analysis.head_counts.begin(), analysis.head_counts.end());
+                 out["chunk_max_counts"] = std::vector<std::uint16_t>(
+                     analysis.chunk_max_counts.begin(),
+                     analysis.chunk_max_counts.end());
+                 out["max_depth"] = analysis.max_depth;
+                 return out;
              },
              py::arg("text"), py::arg("intent"));
 

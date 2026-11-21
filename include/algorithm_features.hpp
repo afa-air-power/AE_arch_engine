@@ -26,7 +26,7 @@
 
 namespace ae::mind {
 
-// Раскладка вектора (96 признаков, все приведены к [0, 1]):
+// Раскладка вектора (118 признаков, все приведены к [0, 1]):
 //   [ 0..15] intent-вектор Taylor-Intent Kernel
 //   [16..24] морфемная маска и словарь trie
 //   [25..27] центроидная декомпозиция Mega RAG
@@ -37,8 +37,14 @@ namespace ae::mind {
 //   [51..55] метаданные запроса и плотность морфем
 //   [56..75] индикаторы 20 семантических кластеров корней
 //   [76..95] поддержка кластеров: log1p(число морфем кластера)
+//   [96..104] поддержка кластеров у головы предложения (9 профильных)
+//   [105..113] максимум поддержки по чанкам-поддеревьям (9 профильных)
+//   [114] глубина исходного дерева предложения
+//   [115] число RDT-поворотов
+//   [116] средняя глубина поднятых голов
+//   [117] глубина нормализованного дерева
 struct AlgorithmFeatureVector {
-    static constexpr int DIM = 96;
+    static constexpr int DIM = 118;
     std::array<float, DIM> values{};
 
     [[nodiscard]] const float* data() const noexcept { return values.data(); }
@@ -46,6 +52,9 @@ struct AlgorithmFeatureVector {
     [[nodiscard]] float& operator[](std::size_t i) noexcept { return values[i]; }
     [[nodiscard]] float operator[](std::size_t i) const noexcept { return values[i]; }
 };
+
+// Девять кластеров, совпадающих с таксономией меток корпуса.
+inline constexpr std::array<int, 9> kProfileClusters{0, 1, 2, 3, 4, 7, 8, 9, 19};
 
 inline constexpr std::array<std::string_view, AlgorithmFeatureVector::DIM>
     kAlgorithmFeatureNames{{
@@ -78,6 +87,11 @@ inline constexpr std::array<std::string_view, AlgorithmFeatureVector::DIM>
         "cluster_count_bio", "cluster_count_med", "cluster_count_econ",
         "cluster_count_law", "cluster_count_soc", "cluster_count_quality",
         "cluster_count_nature", "cluster_count_action",
+        "head_graph", "head_know", "head_flow", "head_text", "head_num",
+        "head_mind", "head_compute", "head_net", "head_action",
+        "chunk_graph", "chunk_know", "chunk_flow", "chunk_text", "chunk_num",
+        "chunk_mind", "chunk_compute", "chunk_net", "chunk_action",
+        "sentence_depth", "rdt_rotations", "rdt_head_depth", "rdt_depth",
     }};
 
 namespace feature_detail {
@@ -100,6 +114,7 @@ inline AlgorithmFeatureVector build_algorithm_features(
     std::uint64_t morpheme_mask,
     int matched_morphemes,
     const std::array<std::uint16_t, 20>& cluster_counts,
+    const MorphemicPatriciaTrie::SentenceAnalysis& sentence,
     std::size_t dictionary_size,
     std::size_t query_word_count,
     std::size_t query_bytes,
@@ -243,6 +258,42 @@ inline AlgorithmFeatureVector build_algorithm_features(
         v[76 + static_cast<std::size_t>(cluster)] =
             clamp01(std::log1p(count) * count_scale);
     }
+
+    // [96..104] поддержка у головы предложения. Голова — это последнее
+    // содержательное слово чанка; для известных составных терминов она
+    // получает поддержку главного кластера фразы.
+    // [105..113] максимум по чанкам: показывает локально связные поддеревья,
+    // даже если в целом предложение про другую тему.
+    for (std::size_t index = 0; index < kProfileClusters.size(); ++index) {
+        const std::size_t cluster =
+            static_cast<std::size_t>(kProfileClusters[index]);
+        const double head_count = static_cast<double>(sentence.head_counts[cluster]);
+        const double chunk_count =
+            static_cast<double>(sentence.chunk_max_counts[cluster]);
+        v[96 + index] = clamp01(std::log1p(head_count) * count_scale);
+        v[105 + index] = clamp01(std::log1p(chunk_count) * count_scale);
+    }
+
+    // [114] глубина дерева: 2 — одна голова, 3 — есть зависимости.
+    v[114] = clamp01(static_cast<double>(sentence.max_depth) / 8.0);
+
+    // [115..117] RDT-представление. Поворот — наблюдаемая структурная
+    // операция, а не скрытая эвристика. Она показывает, сколько голов было
+    // поднято над контейнером и насколько изменилась глубина дерева.
+    v[115] = clamp01(static_cast<double>(sentence.rotations.size()) / 16.0);
+    double lifted_depth = 0.0;
+    for (const auto& rotation : sentence.rotations) {
+        lifted_depth += static_cast<double>(rotation.after_depth);
+    }
+    v[116] = sentence.rotations.empty()
+        ? 0.0f
+        : clamp01(lifted_depth /
+                  (static_cast<double>(sentence.rotations.size()) * 8.0));
+    int normalized_depth = 0;
+    for (const auto& node : sentence.nodes) {
+        normalized_depth = std::max(normalized_depth, node.normalized_depth);
+    }
+    v[117] = clamp01(static_cast<double>(normalized_depth) / 8.0);
 
     return features;
 }

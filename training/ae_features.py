@@ -19,7 +19,7 @@ import numpy as np
 
 from training.ae_core import load_core
 
-FEATURE_DIM = 96
+FEATURE_DIM = 115
 
 # Индексы девяти кластеров, которые соответствуют текущей таксономии меток.
 # Остальные одиннадцать (time/space/phys/.../nature) в этом корпусе почти
@@ -45,10 +45,16 @@ FEATURE_GROUPS: dict[str, range | tuple[int, ...]] = {
     "cluster_counts": range(76, 96),
     "cluster_core": tuple(56 + index for index in CLUSTER_CORE),
     "cluster_counts_core": tuple(76 + index for index in CLUSTER_CORE),
+    # Признаки дерева предложения: поддержка у головы чанка, максимум по
+    # чанкам-поддеревьям и глубина. Это структура, а не мешок слов.
+    "head_core": range(96, 105),
+    "chunk_core": range(105, 114),
+    "sentence": (114,),
+    "rdt": range(115, 118),
 }
 
 DEFAULT_GROUPS: tuple[str, ...] = (
-    "cluster_core", "cluster_counts_core",
+    "cluster_core", "cluster_counts_core", "chunk_core", "sentence", "rdt",
 )
 
 

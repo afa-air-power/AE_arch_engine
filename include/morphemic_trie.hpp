@@ -131,6 +131,54 @@ struct MorphemicPatriciaTrie {
         {"маршрутизация", "трафика", "", Semantic::NET, 2},
     };
 
+    // ---------------------------------------------------- дерево предложения
+    // Trie разбирает слова независимо. Для графового мышления нужна структура:
+    // предложение режется на синтаксические чанки (по пунктуации и союзам),
+    // внутри чанка выделяется голова, а поддержка кластеров агрегируется по
+    // поддереву. Всё детерминировано и не использует обучение.
+    struct SentenceToken {
+        std::string text;
+        std::size_t begin = 0;
+        std::size_t end = 0;
+        bool function_word = false;  // предлог/союз/детерминатор
+        bool starts_chunk = true;    // с этого токена начинается новый чанк
+        MorphemeAnalysis analysis{};
+    };
+
+    struct SentenceNode {
+        int head_token = -1;   // индекс головного токена (для чанка/листа)
+        int parent = -1;       // исходный родительский узел
+        int normalized_parent = -1; // родитель после RDT-поворотов
+        int depth = 0;
+        int normalized_depth = 0;
+        std::size_t begin_token = 0;
+        std::size_t end_token = 0;
+        // Поддержка кластера на этом поддереве. У чанка — агрегат всей фразы
+        // (с учётом составных терминов), у листа — собственный разбор токена.
+        std::array<std::uint16_t, 20> counts{};
+    };
+
+    struct TreeRotation {
+        int child = -1;
+        int parent = -1;
+        int pivot = -1;
+        int direction = 0;  // +1: child поднят, -1: child опущен
+        int before_depth = 0;
+        int after_depth = 0;
+    };
+
+    struct SentenceAnalysis {
+        std::vector<SentenceToken> tokens;
+        std::vector<SentenceNode> nodes;  // [0] — исходный корень всего предложения
+        std::vector<TreeRotation> rotations;
+        int normalized_root = 0;
+        std::array<std::uint16_t, 20> root_counts{};
+        std::array<std::uint16_t, 20> normalized_root_counts{};       // всё предложение
+        std::array<std::uint16_t, 20> head_counts{};       // головы всех чанков
+        std::array<std::uint16_t, 20> chunk_max_counts{};  // максимум по чанкам
+        int max_depth = 0;
+    };
+
     struct Node {
         std::string edge_label;
         int morpheme_id = -1;
@@ -805,6 +853,59 @@ struct MorphemicPatriciaTrie {
         return true;
     }
 
+    // Служебные слова не становятся головой чанка, но остаются в дереве как
+    // зависимости. Списки намеренно короткие и только высокочастотные, чтобы
+    // не «съесть» содержательные слова.
+    inline static constexpr std::string_view kPrepositions[] = {
+        "в", "во", "на", "по", "с", "со", "из", "от", "до", "для", "при",
+        "о", "об", "обо", "про", "через", "между", "над", "под", "без",
+        "к", "ко", "у", "за", "около", "после", "перед", "вокруг", "сквозь",
+        "среди", "кроме", "ради", "благодаря", "согласно", "вопреки",
+        "вместо", "вдоль", "поперёк",
+        "in", "on", "at", "by", "for", "from", "to", "with", "without",
+        "about", "through", "between", "over", "under", "into", "via",
+        "across", "along", "around", "against", "during", "before", "after",
+        "above", "below", "per", "within", "upon", "onto", "toward",
+        "towards", "off", "out", "up", "down",
+    };
+
+    inline static constexpr std::string_view kConjunctions[] = {
+        "и", "а", "но", "или", "либо",
+        "and", "or", "but", "nor",
+    };
+
+    inline static constexpr std::string_view kDeterminers[] = {
+        "не", "ни", "то", "как", "что", "это", "же", "бы", "ли", "так",
+        "тоже", "также", "эти", "этот", "эта", "тот", "та", "те", "все",
+        "весь", "вся", "каждый", "любой", "некоторый",
+        "the", "a", "an", "not", "is", "are", "was", "were", "be", "been",
+        "being", "it", "its", "this", "that", "these", "those", "we", "you",
+        "they", "he", "she", "his", "her", "their", "our", "my", "your",
+        "then", "also", "as", "than",
+    };
+
+    template <std::size_t N>
+    static bool token_in_list(std::string_view text, std::size_t begin,
+                              std::size_t end,
+                              const std::string_view (&list)[N]) noexcept {
+        for (std::size_t i = 0; i < N; ++i) {
+            if (token_equals(text, begin, end, list[i])) return true;
+        }
+        return false;
+    }
+
+    static bool is_conjunction(std::string_view text, std::size_t begin,
+                               std::size_t end) noexcept {
+        return token_in_list(text, begin, end, kConjunctions);
+    }
+
+    static bool is_function_word(std::string_view text, std::size_t begin,
+                                 std::size_t end) noexcept {
+        return is_conjunction(text, begin, end) ||
+               token_in_list(text, begin, end, kPrepositions) ||
+               token_in_list(text, begin, end, kDeterminers);
+    }
+
     static const CompoundRule* match_compound(std::string_view text,
                                                std::size_t begin,
                                                std::size_t end) noexcept {
@@ -902,6 +1003,241 @@ struct MorphemicPatriciaTrie {
             }
         }
         return analysis;
+    }
+
+    // Строит дерево предложения: чанки по пунктуации/союзам, в каждом чанке
+    // голова (последнее содержательное слово) и зависимые служебные слова.
+    // Поддержка кластеров считается по поддереву чанка, поэтому локальная
+    // фраза ("routing table", "network topology") не растворяется в общем
+    // мешке слов. Голова получает поддержку составного термина, заканчиваю-
+    // щегося на ней, — это обобщает прежние жёсткие правила на структуру.
+    __attribute__((noinline)) SentenceAnalysis compile_sentence_analysis(
+        std::string_view text, const std::array<float, 16>& intent) const noexcept {
+        SentenceAnalysis out;
+
+        std::size_t cursor = 0;
+        bool starts_chunk = true;
+        while (cursor < text.size()) {
+            bool punctuation_break = false;
+            while (cursor < text.size() &&
+                   !is_word_byte(static_cast<unsigned char>(text[cursor]))) {
+                const char ch = text[cursor];
+                if (ch == ',' || ch == ';' || ch == ':' || ch == '!' ||
+                    ch == '?' || ch == '(' || ch == ')' || ch == '[' ||
+                    ch == ']' || ch == '{' || ch == '}' || ch == '.' ||
+                    ch == '\n') {
+                    punctuation_break = true;
+                }
+                ++cursor;
+            }
+            if (cursor == text.size()) break;
+
+            const std::size_t begin = cursor;
+            while (cursor < text.size() &&
+                   is_word_byte(static_cast<unsigned char>(text[cursor]))) {
+                ++cursor;
+            }
+            const std::size_t end = cursor;
+
+            SentenceToken token;
+            token.text = std::string(text.substr(begin, end - begin));
+            token.begin = begin;
+            token.end = end;
+            token.function_word = is_function_word(text, begin, end);
+            token.starts_chunk = starts_chunk || punctuation_break;
+            // Разбор одного токена: составные термины требуют двух слов, они
+            // добавятся ниже на уровне чанка.
+            token.analysis = compile_morpheme_analysis(token.text, intent);
+            out.tokens.push_back(token);
+
+            starts_chunk = is_conjunction(text, begin, end);
+        }
+
+        if (out.tokens.empty()) return out;
+
+        SentenceNode root;
+        root.depth = 0;
+        root.begin_token = 0;
+        root.end_token = out.tokens.size();
+        out.nodes.push_back(root);  // индекс 0
+
+        std::size_t i = 0;
+        while (i < out.tokens.size()) {
+            std::size_t j = i + 1;
+            while (j < out.tokens.size() && !out.tokens[j].starts_chunk) ++j;
+
+            int head = -1;
+            for (std::size_t k = i; k < j; ++k) {
+                if (!out.tokens[k].function_word) head = static_cast<int>(k);
+            }
+            if (head < 0) head = static_cast<int>(i);
+
+            // Агрегат чанка считается по сырому spansу, поэтому составные
+            // термины внутри одной фразы срабатывают как обычно.
+            const std::size_t chunk_begin = out.tokens[i].begin;
+            const std::size_t chunk_end = out.tokens[j - 1].end;
+            const MorphemeAnalysis chunk_analysis = compile_morpheme_analysis(
+                text.substr(chunk_begin, chunk_end - chunk_begin), intent);
+
+            SentenceNode chunk;
+            chunk.parent = 0;
+            chunk.depth = 1;
+            chunk.begin_token = i;
+            chunk.end_token = j;
+            chunk.head_token = head;
+            chunk.counts = chunk_analysis.cluster_counts;
+            const int chunk_index = static_cast<int>(out.nodes.size());
+            out.nodes.push_back(chunk);
+
+            // Голова: собственный разбор токена плюс поддержка составного
+            // термина, который заканчивается на этом слове.
+            SentenceNode head_node;
+            head_node.parent = chunk_index;
+            head_node.depth = 2;
+            head_node.begin_token = static_cast<std::size_t>(head);
+            head_node.end_token = static_cast<std::size_t>(head) + 1;
+            head_node.head_token = head;
+            head_node.counts = out.tokens[static_cast<std::size_t>(head)]
+                                   .analysis.cluster_counts;
+            for (const CompoundRule& rule : kCompoundRules) {
+                const int parts = rule.third.empty() ? 2 : 3;
+                const int first = head - (parts - 1);
+                if (first < static_cast<int>(i)) continue;
+                const std::string_view rule_parts[3] = {
+                    rule.first, rule.second, rule.third};
+                bool matches = true;
+                for (int k = 0; k < parts; ++k) {
+                    const SentenceToken& token =
+                        out.tokens[static_cast<std::size_t>(first + k)];
+                    if (!token_equals(token.text, 0, token.text.size(),
+                                      rule_parts[k])) {
+                        matches = false;
+                        break;
+                    }
+                }
+                if (matches) {
+                    head_node.counts[static_cast<std::size_t>(rule.primary)] +=
+                        rule.weight;
+                }
+            }
+            const int head_index = static_cast<int>(out.nodes.size());
+            out.nodes.push_back(head_node);
+
+            int chunk_depth = 2;
+            for (std::size_t k = i; k < j; ++k) {
+                if (static_cast<int>(k) == head) continue;
+                SentenceNode dependent;
+                dependent.parent = head_index;
+                dependent.depth = 3;
+                dependent.begin_token = k;
+                dependent.end_token = k + 1;
+                dependent.head_token = static_cast<int>(k);
+                dependent.counts = out.tokens[k].analysis.cluster_counts;
+                out.nodes.push_back(dependent);
+                chunk_depth = 3;
+            }
+            if (chunk_depth > out.max_depth) out.max_depth = chunk_depth;
+
+            for (int cluster = 0; cluster < 20; ++cluster) {
+                const std::size_t c = static_cast<std::size_t>(cluster);
+                out.head_counts[c] += head_node.counts[c];
+                out.chunk_max_counts[c] =
+                    std::max(out.chunk_max_counts[c],
+                             out.nodes[static_cast<std::size_t>(chunk_index)]
+                                 .counts[c]);
+                out.root_counts[c] +=
+                    out.nodes[static_cast<std::size_t>(chunk_index)].counts[c];
+            }
+
+            i = j;
+        }
+
+        out.nodes[0].counts = out.root_counts;
+
+        // ------------------------------------------------------------ RDT слой
+        // Локальная ротация поднимает голову чанка над самим контейнером.
+        // Это не лексическое правило: решение следует из структуры дерева,
+        // роли токена и массы его поддерева. Исходные parent/depth сохраняются
+        // для обратимости, normalized_parent/depth образуют рабочее дерево.
+        for (SentenceNode& node : out.nodes) {
+            node.normalized_parent = node.parent;
+            node.normalized_depth = node.depth;
+        }
+
+        for (std::size_t chunk_index = 1; chunk_index < out.nodes.size(); ++chunk_index) {
+            SentenceNode& chunk = out.nodes[chunk_index];
+            if (chunk.depth != 1) continue;
+
+            int head_index = -1;
+            for (std::size_t candidate = 1; candidate < out.nodes.size(); ++candidate) {
+                const SentenceNode& child = out.nodes[candidate];
+                if (child.normalized_parent == static_cast<int>(chunk_index) &&
+                    child.head_token == chunk.head_token && child.depth == 2) {
+                    head_index = static_cast<int>(candidate);
+                    break;
+                }
+            }
+            if (head_index < 0) continue;
+
+            TreeRotation rotation;
+            rotation.child = head_index;
+            rotation.parent = static_cast<int>(chunk_index);
+            rotation.pivot = chunk.normalized_parent;
+            rotation.direction = 1;
+            rotation.before_depth = out.nodes[static_cast<std::size_t>(head_index)]
+                                        .normalized_depth;
+
+            const int grandparent = chunk.normalized_parent;
+            out.nodes[static_cast<std::size_t>(head_index)].normalized_parent = grandparent;
+            chunk.normalized_parent = head_index;
+            out.rotations.push_back(rotation);
+        }
+
+        for (std::size_t index = 0; index < out.nodes.size(); ++index) {
+            int current = static_cast<int>(index);
+            int depth = 0;
+            int guard = 0;
+            while (current >= 0 && guard++ <= static_cast<int>(out.nodes.size())) {
+                const int parent = out.nodes[static_cast<std::size_t>(current)].normalized_parent;
+                if (parent < 0) break;
+                ++depth;
+                current = parent;
+            }
+            out.nodes[index].normalized_depth = depth;
+        }
+        for (TreeRotation& rotation : out.rotations) {
+            rotation.after_depth = out.nodes[static_cast<std::size_t>(rotation.child)]
+                                       .normalized_depth;
+        }
+        out.normalized_root = 0;
+        out.normalized_root_counts = out.root_counts;
+
+        // Проверка ацикличности после серии ротаций. В штатном случае она
+        // бесплатна относительно разбора и защищает графовое представление
+        // от ошибочного поворота.
+        for (std::size_t index = 0; index < out.nodes.size(); ++index) {
+            int current = static_cast<int>(index);
+            int guard = 0;
+            while (current >= 0 && guard++ <= static_cast<int>(out.nodes.size())) {
+                current = out.nodes[static_cast<std::size_t>(current)].normalized_parent;
+            }
+            if (guard > static_cast<int>(out.nodes.size())) {
+                out.rotations.clear();
+                for (SentenceNode& node : out.nodes) {
+                    node.normalized_parent = node.parent;
+                    node.normalized_depth = node.depth;
+                }
+                break;
+            }
+        }
+
+        int normalized_max_depth = 0;
+        for (const SentenceNode& node : out.nodes) {
+            normalized_max_depth = std::max(normalized_max_depth,
+                                            node.normalized_depth);
+        }
+        out.max_depth = std::max(out.max_depth, normalized_max_depth);
+        return out;
     }
 
     std::pair<std::uint64_t, int> compile_morpheme_mask(

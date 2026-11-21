@@ -197,6 +197,54 @@ int main() {
            russian_routing.cluster_counts[static_cast<std::size_t>(
                MorphemicPatriciaTrie::Semantic::FLOW)]);
 
+    // Дерево предложения: чанки, головы и поддержка по поддеревьям.
+    const auto topology_tree = trie.compile_sentence_analysis(
+        "network topology", y_taylor);
+    assert(topology_tree.tokens.size() == 2);
+    assert(topology_tree.max_depth >= 2);
+    assert(topology_tree.head_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::GRAPH)] >
+           topology_tree.head_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::NET)]);
+    assert(topology_tree.chunk_max_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::GRAPH)] >= 2);
+    assert(!topology_tree.rotations.empty());
+    for (const auto& node : topology_tree.nodes) {
+        int current = static_cast<int>(&node - topology_tree.nodes.data());
+        int guard = 0;
+        while (current >= 0 && guard++ <= static_cast<int>(topology_tree.nodes.size())) {
+            current = topology_tree.nodes[static_cast<std::size_t>(current)].normalized_parent;
+        }
+        assert(guard <= static_cast<int>(topology_tree.nodes.size()));
+    }
+
+    const auto neural_tree = trie.compile_sentence_analysis(
+        "neural network", y_taylor);
+    assert(neural_tree.head_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::MIND)] >
+           neural_tree.head_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::NET)]);
+
+    const auto routing_tree = trie.compile_sentence_analysis(
+        "routing table", y_taylor);
+    assert(routing_tree.head_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::NET)] >
+           routing_tree.head_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::FLOW)]);
+
+    // Два чанка, соединённых союзом "and": дерево не смешивает их головы.
+    const auto two_chunks = trie.compile_sentence_analysis(
+        "graph of network links and routing table", y_taylor);
+    assert(two_chunks.nodes.size() > 2);
+    assert(two_chunks.max_depth >= 3);
+    assert(two_chunks.head_counts[static_cast<std::size_t>(
+               MorphemicPatriciaTrie::Semantic::NET)] >= 2);
+    std::size_t chunk_nodes = 0;
+    for (const auto& node : two_chunks.nodes) {
+        if (node.depth == 1) ++chunk_nodes;
+    }
+    assert(chunk_nodes == 2);
+
     // Слово вне словаря не должно давать ложных морфем ("кот" -> "от").
     const auto [unknown_mask, unknown_count] =
         trie.compile_morpheme_mask("кот", y_taylor);
