@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модули:** `include/algorithm_features.hpp`, `training/ae_features.py`,
+- **Модули:** [include/algorithm_features.hpp](../../include/algorithm_features.hpp), [training/ae_features.py](../../training/ae_features.py), [training/ae_graph_train.py](../../training/ae_graph_train.py), [training/ae_graph_hip.py](../../training/ae_graph_hip.py)
   `training/ae_graph_train.py`, `training/ae_graph_hip.py`
 
 ## Контекст
@@ -139,11 +139,32 @@
 
 ## Ссылки
 
-- Признаки: `include/algorithm_features.hpp` (`DIM = 118`,
-  `kAlgorithmFeatureNames`).
-- Сборка датасета: `training/ae_features.py`.
-- Обучение: `training/ae_graph_train.py`.
-- HIP smoke test: `training/ae_graph_hip.py`.
-- Документация: `docs/TRAINING.md`.
-- Тесты: `tests/test_features.py`, `tests/test_graph_training.py`,
-  `tests/test_benchmarks.py`.
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0012` и
+`docs/adr/0012-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0012
+```
+
+**Признаки:** [include/algorithm_features.hpp](../../include/algorithm_features.hpp)
+— `struct AlgorithmFeatureVector` (`DIM = 118`), `kAlgorithmFeatureNames`,
+`build_algorithm_features`, группы признаков.
+
+**Сборка датасета** — [training/ae_features.py](../../training/ae_features.py):
+`AlgorithmFeatureExtractor`, `build_adjacency`, `build_dataset`.
+
+**Генераторы корпусов:** [tools/make_demo_dataset.py](../../tools/make_demo_dataset.py),
+[tools/make_text_cluster_corpus.py](../../tools/make_text_cluster_corpus.py),
+[tools/make_text_cluster_synthetic.py](../../tools/make_text_cluster_synthetic.py),
+[tools/merge_corpora.py](../../tools/merge_corpora.py).
+
+**Обучение** — [training/ae_graph_train.py](../../training/ae_graph_train.py):
+`GraphSAGEClassifier`, `train`, `evaluate`, `stratified_folds`, `cross_validate`.
+
+- HIP smoke test: [training/ae_graph_hip.py](../../training/ae_graph_hip.py),
+  [ADR-0014](0014-build-portability-and-hip.md).
+- Документация: [docs/TRAINING.md](../TRAINING.md).
+- Тесты: [tests/test_features.py](../../tests/test_features.py),
+  [tests/test_graph_training.py](../../tests/test_graph_training.py),
+  [tests/test_benchmarks.py](../../tests/test_benchmarks.py).

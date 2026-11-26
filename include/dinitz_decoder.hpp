@@ -3,6 +3,7 @@
 // AE Arch Engine (AE::mind1_v1.1_Stable)
 // Module 3.4: Graph-Decoder Stream (Zero-Allocation Cache-Local Dinic Flow)
 // Author: Andrey Firstov (IU5 BMSTU)
+// ADR: docs/adr/0004-dinitz-max-flow-decoder.md
 // ============================================================================
 
 #include <algorithm>
@@ -11,7 +12,7 @@
 #include <vector>
 
 namespace ae::mind {
-
+// ADR-0004: docs/adr/0004-dinitz-max-flow-decoder.md
 struct DinitzGraphDecoder {
     static constexpr int MAX_V = 128;
     static constexpr int MAX_E = 1024;
@@ -37,6 +38,9 @@ struct DinitzGraphDecoder {
         head.fill(-1);
     }
 
+    // ADR-0004: docs/adr/0004-dinitz-max-flow-decoder.md
+    // Пара e / e^1: прямое ребро получает base_cap, обратное — 0.
+    // Переполнение фиксированных массивов молча игнорируется.
     inline void add_static_edge(int from, int to, int base_cap, std::uint8_t tag) noexcept {
         if (edge_count + 2 > MAX_E) return;
         edges[edge_count] = {to, head[from], base_cap, base_cap, 0, tag};
@@ -45,6 +49,9 @@ struct DinitzGraphDecoder {
         head[to] = edge_count++;
     }
 
+    // ADR-0004: docs/adr/0004-dinitz-max-flow-decoder.md
+    // Маска запроса открывает рёбра по semantic_tag и сбрасывает flow;
+    // топология при этом не пересобирается.
     inline void apply_boolean_mask_and_reset(std::uint64_t boolean_mask) noexcept {
         for (int e = 0; e < edge_count; e += 2) {
             std::uint8_t tag = edges[e].semantic_tag;
@@ -56,6 +63,8 @@ struct DinitzGraphDecoder {
         }
     }
 
+    // ADR-0004: docs/adr/0004-dinitz-max-flow-decoder.md
+    // BFS строит слоистую сеть по остаточной ёмкости (cap - flow).
     inline bool bfs(int s, int t) noexcept {
         for (int i = 0; i < n; ++i) level[i] = -1;
         level[s] = 0;
@@ -74,6 +83,8 @@ struct DinitzGraphDecoder {
         return level[t] != -1;
     }
 
+    // ADR-0004: docs/adr/0004-dinitz-max-flow-decoder.md
+    // DFS с указателем ptr ищет блокирующий поток в слоистой сети.
     inline int dfs(int v, int t, int pushed) noexcept {
         if (pushed == 0 || v == t) return pushed;
         for (int& cid = ptr[v]; cid != -1; cid = edges[cid].next) {
@@ -89,6 +100,8 @@ struct DinitzGraphDecoder {
         return 0;
     }
 
+    // ADR-0004: docs/adr/0004-dinitz-max-flow-decoder.md
+    // Классический Диниц: фазы BFS + блокирующий поток, без аллокаций.
     inline int max_flow(int s, int t) noexcept {
         int flow = 0;
         while (bfs(s, t)) {
@@ -100,6 +113,9 @@ struct DinitzGraphDecoder {
         return flow;
     }
 
+    // ADR-0004: docs/adr/0004-dinitz-max-flow-decoder.md
+    // Эвристика пути по прямому остаточному потоку; для AST используется
+    // детерминированный path_between из ADR-0005/ADR-0010.
     inline void extract_optimal_thought_path(int s, int t, std::vector<int>& path) const noexcept {
         path.clear();
         path.push_back(s);

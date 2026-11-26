@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модуль:** 6.1, `include/natural_language_output.hpp`
+- **Модуль:** 6.1, [include/natural_language_output.hpp](../../include/natural_language_output.hpp)
 
 ## Контекст
 
@@ -78,9 +78,24 @@ recall=1.00 precision=1.00 morphemes=12 passes=1 consistent=true
 
 ## Ссылки
 
-- Реализация: `include/natural_language_output.hpp`.
-- Вызов: `src/engine_pipeline.cpp` (`infer`, `extract_features`).
-- FFI: `include/ae_c_api.h` (`ae_engine_get_last_nl`,
-  `ae_engine_get_last_nl_feedback`).
-- Python: `bindings/ae_engine.py`, `bindings/slm_bridge.py`.
-- Тесты: `benchmarks/text_tasks.py` (`nl_round_trip_consistency`).
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0008` и
+`docs/adr/0008-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0008
+```
+
+**Реализация:** [include/natural_language_output.hpp](../../include/natural_language_output.hpp)
+— `struct NaturalLanguageReport`, `CLUSTER_WINDOW` (биты `[28..47]`),
+`kDomainLexemes` (20 доменов), `cluster_bits`, `render_text`, `parse_back`,
+`render_natural_language`.
+
+- Вызов: [src/engine_pipeline.cpp](../../src/engine_pipeline.cpp)
+  (`extract_features`, `infer`).
+- FFI: [include/ae_c_api.h](../../include/ae_c_api.h)
+  (`ae_engine_get_last_nl`, `ae_engine_get_last_nl_feedback`).
+- Python: [bindings/ae_engine.py](../../bindings/ae_engine.py),
+  [bindings/slm_bridge.py](../../bindings/slm_bridge.py).
+- Тесты: [benchmarks/text_tasks.py](../../benchmarks/text_tasks.py)
+  (`nl_round_trip_consistency`), [tests/test_ae_core.cpp](../../tests/test_ae_core.cpp).

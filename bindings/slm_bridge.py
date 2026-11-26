@@ -1,4 +1,7 @@
-"""SLM 3B Verbalization Bridge for AE Arch Engine (`AE::mind1_v1.1_Stable`)."""
+"""SLM 3B Verbalization Bridge for AE Arch Engine (`AE::mind1_v1.1_Stable`).
+
+ADR: docs/adr/0008-natural-language-round-trip.md, docs/adr/0011-c-abi-and-python-bindings.md
+"""
 
 from __future__ import annotations
 
@@ -10,6 +13,8 @@ from ae_engine import AEArchEngine, AEInferenceOutput
 
 
 class AESLMOrchestrator:
+    """ADR-0008/0011: nl_text — основной ответ, AST — проверяемый контракт."""
+
     def __init__(
         self,
         engine: Optional[AEArchEngine] = None,
@@ -21,6 +26,8 @@ class AESLMOrchestrator:
         self.model_name = model_name
 
     def answer(self, query: str, target_hint: int = -1, reroot_node: Optional[int] = None) -> Dict[str, Any]:
+        # ADR-0008: docs/adr/0008-natural-language-round-trip.md
+        # ADR-0011: docs/adr/0011-c-abi-and-python-bindings.md
         if reroot_node is not None:
             self.engine.reroot(reroot_node)
 
@@ -76,6 +83,8 @@ class AESLMOrchestrator:
 
     @staticmethod
     def _deterministic_verbalize(out: AEInferenceOutput) -> str:
+        # ADR-0007: docs/adr/0007-verified-ast-prompt.md
+        # ADR-0008: docs/adr/0008-natural-language-round-trip.md
         chunks = [f"KB_CHUNK_{out.centroid_id * 100 + u}" for u in out.optimal_path]
         return (
             f"[AE::mind1 Deterministic Verbalizer] Локализован центроид #{out.centroid_id} "

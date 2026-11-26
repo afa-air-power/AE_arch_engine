@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модули:** `CMakeLists.txt`, `Makefile`, `training/ae_graph_hip.py`
+- **Модули:** [CMakeLists.txt](../../CMakeLists.txt), [Makefile](../../Makefile), [training/ae_graph_hip.py](../../training/ae_graph_hip.py)
 
 ## Контекст
 
@@ -75,10 +75,25 @@
 
 ## Ссылки
 
-- CMake: `CMakeLists.txt`.
-- Make: `Makefile`.
-- HIP: `training/ae_graph_hip.py`.
-- Документация: `docs/README.md`, `docs/TRAINING.md` (раздел «Vega 7 / HIP»).
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0014` и
+`docs/adr/0014-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0014
+```
+
+**CMake** — [CMakeLists.txt](../../CMakeLists.txt): опции
+`AE_BUILD_TESTS`/`AE_BUILD_PYBIND11`/`AE_ENABLE_HIP_TESTS`, статическое ядро,
+`libae_mind1.so`, бенчмарк, CTest-регистрация.
+
+**Make** — [Makefile](../../Makefile): `CXXFLAGS`, `all`, `test`, `bench`.
+
+**HIP** — [training/ae_graph_hip.py](../../training/ae_graph_hip.py):
+smoke test, компиляция kernel, override `HSA_OVERRIDE_GFX_VERSION`.
+
+- Документация: [docs/README.md](../README.md),
+  [docs/TRAINING.md](../TRAINING.md) (раздел «Vega 7 / HIP»).
 - CI-команда:
   `cmake -S . -B build -DAE_BUILD_PYBIND11=ON -DAE_ENABLE_HIP_TESTS=ON -DCMAKE_BUILD_TYPE=Release`
   → `cmake --build build -j` → `ctest --test-dir build --output-on-failure`.

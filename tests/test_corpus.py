@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Contract tests for the labeled text-cluster corpora."""
+"""Contract tests for the labeled text-cluster corpora.
+
+ADR: docs/adr/0012-trainable-graph-contour.md, docs/adr/0013-benchmarks-and-verification.md
+"""
 
 from __future__ import annotations
 

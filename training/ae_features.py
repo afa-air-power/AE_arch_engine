@@ -5,6 +5,8 @@ morphemic Patricia trie mask, Mega RAG centroid decomposition, Dinitz
 max-flow, MST/LCA thought-graph path statistics, Time-Ray smoothing and the
 natural-language round trip.  The Python layer only batches them into a
 trainable dataset.
+
+ADR: docs/adr/0012-trainable-graph-contour.md
 """
 
 from __future__ import annotations
@@ -67,6 +69,7 @@ def group_columns(groups: Iterable[str]) -> list[int]:
     return sorted(set(columns))
 
 
+# ADR-0012: docs/adr/0012-trainable-graph-contour.md
 @dataclass
 class AlgorithmFeatureExtractor:
     """Thin wrapper over ``AEEnginePipeline::extract_features``."""
@@ -185,6 +188,7 @@ def knn_adjacency(features: np.ndarray, neighbors: int = 4) -> np.ndarray:
     return adjacency
 
 
+# ADR-0012: docs/adr/0012-trainable-graph-contour.md
 def build_adjacency(
     features: np.ndarray,
     queries: list[str],
@@ -203,6 +207,7 @@ def build_adjacency(
     raise ValueError(f"unknown graph mode: {graph}")
 
 
+# ADR-0012: docs/adr/0012-trainable-graph-contour.md
 def build_dataset(
     samples: Iterable[dict[str, Any]],
     extractor: AlgorithmFeatureExtractor | None = None,

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Create a deterministic graph dataset using AE algorithm-derived features."""
+"""Create a deterministic graph dataset using AE algorithm-derived features.
+
+ADR: docs/adr/0012-trainable-graph-contour.md
+"""
 
 from __future__ import annotations
 

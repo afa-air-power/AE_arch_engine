@@ -11,6 +11,8 @@ Contract:
 - normalized duplicate queries are collapsed (same label) or rejected
   (different labels);
 - the merged file keeps the same schema consumed by ``training/ae_features.py``.
+
+ADR: docs/adr/0012-trainable-graph-contour.md
 """
 
 from __future__ import annotations

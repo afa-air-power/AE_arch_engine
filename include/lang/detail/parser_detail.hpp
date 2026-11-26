@@ -1,4 +1,5 @@
 #pragma once
+// ADR: docs/adr/0009-language-parsers.md
 
 #include "../parser.hpp"
 
@@ -28,6 +29,8 @@ inline bool is_word_byte(unsigned char byte) noexcept {
            byte == '\'';
 }
 
+// ADR-0009: docs/adr/0009-language-parsers.md
+// Самый длинный аффикс из словаря на данной стороне слова.
 inline std::string_view longest_affix(
     std::string_view word,
     const auto& affixes,
@@ -64,6 +67,8 @@ inline void append_morpheme(
     }
 }
 
+// ADR-0009: docs/adr/0009-language-parsers.md
+// Общий детерминированный разбор слов: приставки/основа/суффикс/окончание.
 template <std::size_t PrefixCount, std::size_t SuffixCount>
 ParseResult parse_words(
     std::string_view text,

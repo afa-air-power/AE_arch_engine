@@ -1,5 +1,6 @@
 # ============================================================================
 # AE Arch Engine (AE::mind1_v1.1_Stable) — Direct Makefile (Fallback for CMake)
+# ADR: docs/adr/0014-build-portability-and-hip.md
 # ============================================================================
 
 CXX      ?= g++
@@ -12,7 +13,7 @@ TEST_BIN   = $(BUILD_DIR)/ae_tests
 
 SRCS_LIB   = src/lang_parser.cpp src/lang/en/parser.cpp src/lang/ru/parser.cpp src/lang/programing/parser.cpp src/engine_pipeline.cpp src/ae_c_api.cpp
 
-.PHONY: all clean test bench
+.PHONY: all clean test bench adr-check
 
 all: $(SHARED_LIB) $(BENCH_BIN) $(TEST_BIN)
 
@@ -35,6 +36,9 @@ test: all
 
 bench: $(BENCH_BIN)
 	./$(BENCH_BIN)
+
+adr-check:
+	docs/adr/find.sh --check
 
 clean:
 	rm -rf $(BUILD_DIR)

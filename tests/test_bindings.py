@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Integration tests for Python ctypes SDK (`ae_engine.py`) and SLM Bridge (`slm_bridge.py`)."""
+"""Integration tests for Python ctypes SDK (`ae_engine.py`) and SLM Bridge (`slm_bridge.py`).
+
+ADR: docs/adr/0011-c-abi-and-python-bindings.md, docs/adr/0013-benchmarks-and-verification.md
+"""
 
 import pathlib
 import sys

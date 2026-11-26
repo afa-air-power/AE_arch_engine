@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Contract tests for algorithm-derived features."""
+"""Contract tests for algorithm-derived features.
+
+ADR: docs/adr/0012-trainable-graph-contour.md, docs/adr/0013-benchmarks-and-verification.md
+"""
 
 from __future__ import annotations
 

@@ -4,6 +4,8 @@ These tasks measure the deterministic text layer: language detection, morpheme
 segmentation, semantic cluster extraction, the natural-language round trip and
 output determinism.  They complement the logic suite, which measures the graph
 algorithms.
+
+ADR: docs/adr/0013-benchmarks-and-verification.md
 """
 
 from __future__ import annotations
@@ -43,6 +45,7 @@ class TaskResult:
         }
 
 
+# ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
 def clusters_of(mask: int) -> set[str]:
     return {CLUSTER_ORDER[i] for i in range(20) if (mask >> (28 + i)) & 1}
 
@@ -97,6 +100,7 @@ CLUSTER_CASES = [
 ]
 
 
+# ADR-0013: docs/adr/0013-benchmarks-and-verification.md
 def run(rag_nodes: int = 20000) -> dict[str, Any]:
     core = load_core()
     engine = core.AEEnginePipeline(rag_nodes, 6)

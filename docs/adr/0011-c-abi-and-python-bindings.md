@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модуль:** `include/ae_c_api.h`, `src/ae_c_api.cpp`, `bindings/`
+- **Модуль:** [include/ae_c_api.h](../../include/ae_c_api.h), [src/ae_c_api.cpp](../../src/ae_c_api.cpp), [bindings/](../../bindings/)
 
 ## Контекст
 
@@ -74,9 +74,24 @@
 
 ## Ссылки
 
-- Заголовок: `include/ae_c_api.h`.
-- Реализация: `src/ae_c_api.cpp`.
-- Python: `bindings/ae_engine.py`, `bindings/slm_bridge.py`,
-  `bindings/pybind_module.cpp`.
-- Сборка: `CMakeLists.txt`, `Makefile`.
-- Тесты: `tests/test_bindings.py`.
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0011` и
+`docs/adr/0011-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0011
+```
+
+**Заголовок:** [include/ae_c_api.h](../../include/ae_c_api.h)
+— `AEInferenceMetrics` (POD), `ae_engine_create`/`ae_engine_destroy`,
+`ae_engine_add_morpheme`/`ae_engine_reroot`, `ae_engine_infer`, геттеры AST/trace/NL.
+
+**Реализация:** [src/ae_c_api.cpp](../../src/ae_c_api.cpp)
+— `create`, `destroy`, `add_morpheme`, `reroot`, `infer`, геттеры.
+
+**Python:** [bindings/ae_engine.py](../../bindings/ae_engine.py)
+(`AEArchEngine`, `infer`), [bindings/slm_bridge.py](../../bindings/slm_bridge.py),
+[bindings/pybind_module.cpp](../../bindings/pybind_module.cpp).
+
+- Сборка: [CMakeLists.txt](../../CMakeLists.txt) (`libae_mind1`), [Makefile](../../Makefile).
+- Тесты: [tests/test_bindings.py](../../tests/test_bindings.py).

@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модуль:** 3.2, `include/morphemic_trie.hpp`
+- **Модуль:** 3.2, [include/morphemic_trie.hpp](../../include/morphemic_trie.hpp)
 
 ## Контекст
 
@@ -81,9 +81,28 @@
 
 ## Ссылки
 
-- Реализация: `include/morphemic_trie.hpp`.
-- Альтернативный разбор: `include/lang/detail/parser_detail.hpp`,
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0002` и
+`docs/adr/0002-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0002
+```
+
+**Реализация:** [include/morphemic_trie.hpp](../../include/morphemic_trie.hpp)
+— `struct MorphemicPatriciaTrie` (раскладка маски, `MorphemeType`/`Semantic`/
+`BASE_MASK`), `type_mask`/`cluster_mask`/`make_mask`, `MorphemeAnalysis`,
+`bind_node`/`insert`, `seed_russian_inventory`, `seed_english_inventory`,
+`match_compound`, `compile_morpheme_analysis`, `compile_sentence_analysis`,
+`compile_morpheme_mask`.
+
+- Потребители: [include/dinitz_decoder.hpp](../../include/dinitz_decoder.hpp)
+  (`apply_boolean_mask_and_reset`), [include/natural_language_output.hpp](../../include/natural_language_output.hpp),
+  [include/algorithm_features.hpp](../../include/algorithm_features.hpp),
+  [src/engine_pipeline.cpp](../../src/engine_pipeline.cpp).
+- Альтернативный разбор: [include/lang/detail/parser_detail.hpp](../../include/lang/detail/parser_detail.hpp),
   [ADR-0009](0009-language-parsers.md).
-- Потребители: `include/dinitz_decoder.hpp`, `include/natural_language_output.hpp`,
-  `include/algorithm_features.hpp`.
-- Бенчмарк: `compile_morpheme_mask` в `src/main_bench.cpp`.
+- Тесты: [tests/test_ae_core.cpp](../../tests/test_ae_core.cpp),
+  [benchmarks/text_tasks.py](../../benchmarks/text_tasks.py)
+  (`trie_known_root_clusters`, `trie_unknown_words_clean`).
+- Бенчмарк: [src/main_bench.cpp](../../src/main_bench.cpp).

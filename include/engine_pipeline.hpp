@@ -3,6 +3,7 @@
 // AE Arch Engine (AE::mind_v1.1_Stable)
 // Unified End-to-End Inference Pipeline
 // Author: Andrey Firstov (IU5 BMSTU)
+// ADR: docs/adr/0010-unified-pipeline.md
 // ============================================================================
 
 #include "algorithm_features.hpp"
@@ -40,6 +41,7 @@ struct InferenceResult {
     double latency_us = 0.0;
 };
 
+// ADR-0010: docs/adr/0010-unified-pipeline.md
 // Сигналы, которые считают алгоритмы ядра до AST/NL-стадии. Используются и
 // конвейером вывода, и извлечением признаков для обучаемой модели, поэтому
 // обучение и runtime видят одно и то же представление.
@@ -62,14 +64,20 @@ class AEEnginePipeline {
 public:
     static constexpr int DEFAULT_SUBGRAPH_NODES = 64;
 
+    // ADR-0010: docs/adr/0010-unified-pipeline.md
+    // Единственный источник топологии: из topology строятся и MST, и поток.
     explicit AEEnginePipeline(int rag_nodes = 100000, int rag_avg_degree = 6);
 
+    // ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
+    // ADR-0011: docs/adr/0011-c-abi-and-python-bindings.md
     void add_morpheme(std::string_view word, int id,
                       MorphemicPatriciaTrie::MorphemeType type,
                       std::uint64_t compatibility_mask);
 
+    // ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
     void reroot_thought_graph(int new_root) noexcept;
 
+    // ADR-0012: docs/adr/0012-trainable-graph-contour.md
     // Признаки, снятые с алгоритмов ядра (см. algorithm_features.hpp).
     [[nodiscard]] AlgorithmFeatureVector extract_features(std::string_view query,
                                                           int target_hint = -1);
@@ -94,11 +102,15 @@ public:
         return decoder_;
     }
 
+    // ADR-0010: docs/adr/0010-unified-pipeline.md
     InferenceResult infer(std::string_view query,
                           int target_hint = -1,
                           bool run_time_ray_async = true);
 
 private:
+    // ADR-0010: docs/adr/0010-unified-pipeline.md
+    // Ядро: морфология -> интент -> маска -> центроид -> поток -> путь.
+    // latency_us фиксируется здесь, до Time-Ray/AST/NL.
     [[nodiscard]] CoreSignals compute_core_signals(std::string_view query,
                                                    int target_hint);
 

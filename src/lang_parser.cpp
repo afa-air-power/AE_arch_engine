@@ -1,3 +1,4 @@
+// ADR: docs/adr/0009-language-parsers.md
 #include "lang/parser.hpp"
 
 #include "lang/en/parser.hpp"
@@ -20,6 +21,7 @@ Parser::Parser(
     LanguageFamily family) noexcept
     : context_(context), callback_(callback), language_(language), family_(family) {}
 
+// ADR-0009: docs/adr/0009-language-parsers.md
 ParseResult Parser::parse(std::string_view text) const {
     ParseResult result = callback_(context_, text);
     result.family = family_;
@@ -34,6 +36,8 @@ LanguageFamily Parser::family() const noexcept {
     return family_;
 }
 
+// ADR-0009: docs/adr/0009-language-parsers.md
+// Байтовый детектор: 0xD0/0xD1 — кириллица, латиница — A-Z/a-z; при равенстве EN.
 Language detect_language(std::string_view text) noexcept {
     std::size_t cyrillic_bytes = 0;
     std::size_t latin_letters = 0;
@@ -49,12 +53,14 @@ Language detect_language(std::string_view text) noexcept {
         : Language::ENGLISH;
 }
 
+// ADR-0009: docs/adr/0009-language-parsers.md
 Parser* select_parser(std::string_view text) noexcept {
     return detect_language(text) == Language::RUSSIAN
         ? static_cast<Parser*>(&russian_parser)
         : static_cast<Parser*>(&english_parser);
 }
 
+// ADR-0009: docs/adr/0009-language-parsers.md
 LanguageInterface* select_parser(
     LanguageFamily family,
     std::string_view text) noexcept {

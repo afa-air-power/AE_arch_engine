@@ -12,6 +12,8 @@ the native target instead.
 This tests the device path independently of the training model.  It fails
 clearly when ROCm or the target GPU is unavailable instead of silently
 claiming that CPU execution is GPU execution.
+
+ADR: docs/adr/0012-trainable-graph-contour.md, docs/adr/0014-build-portability-and-hip.md
 """
 
 from __future__ import annotations

@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модуль:** `include/lang/`, `src/lang/`, `src/lang_parser.cpp`
+- **Модуль:** [include/lang/](../../include/lang/), [src/lang/](../../src/lang/), [src/lang_parser.cpp](../../src/lang_parser.cpp)
 
 ## Контекст
 
@@ -74,10 +74,27 @@
 
 ## Ссылки
 
-- Интерфейс: `include/lang/parser.hpp`, `include/lang/interface.hpp`.
-- Общий разбор: `include/lang/detail/parser_detail.hpp`.
-- Реализации: `src/lang/ru/parser.cpp`, `src/lang/en/parser.cpp`,
-  `src/lang/programing/parser.cpp`.
-- Маршрутизация: `src/lang_parser.cpp`.
-- Тесты: `tests/test_ae_core.cpp`, `benchmarks/text_tasks.py`
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0009` и
+`docs/adr/0009-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0009
+```
+
+**Интерфейс:** [include/lang/parser.hpp](../../include/lang/parser.hpp)
+— `LanguageInterface`, `Parser` (type-erased реализация), `detect_language`/`select_parser`.
+
+**Общий разбор:** [include/lang/detail/parser_detail.hpp](../../include/lang/detail/parser_detail.hpp)
+— `MIN_STEM_BYTES`/`MAX_PREFIXES_PER_WORD`, `longest_affix`, `parse_words`.
+
+**Реализации:** [src/lang/ru/parser.cpp](../../src/lang/ru/parser.cpp),
+[src/lang/en/parser.cpp](../../src/lang/en/parser.cpp),
+[src/lang/programing/parser.cpp](../../src/lang/programing/parser.cpp).
+
+**Маршрутизация:** [src/lang_parser.cpp](../../src/lang_parser.cpp)
+(`Parser::parse`, `detect_language`, `select_parser`).
+
+- Тесты: [tests/test_ae_core.cpp](../../tests/test_ae_core.cpp),
+  [benchmarks/text_tasks.py](../../benchmarks/text_tasks.py)
   (`language_detection`, `morpheme_segmentation`).

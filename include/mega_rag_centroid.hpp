@@ -3,6 +3,7 @@
 // AE Arch Engine (AE::mind_v1.1_Stable)
 // Module 3.3: Mega RAG & Centroid Decomposition (mmap CSR + O(log N) search)
 // Author: Andrey Firstov (IU5 BMSTU)
+// ADR: docs/adr/0003-mega-rag-centroid-decomposition.md
 // ============================================================================
 
 #include <algorithm>
@@ -20,7 +21,7 @@ struct KnowledgeEdge {
     int weight;
     std::uint8_t semantic_tag;
 };
-
+// ADR-0003: docs/adr/0003-mega-rag-centroid-decomposition.md
 struct MegaRAGCentroidGraph {
     int n_nodes = 0;
     std::size_t mmap_bytes = 0;
@@ -35,6 +36,9 @@ struct MegaRAGCentroidGraph {
     std::vector<int> centroid_depth;
     int root_centroid = -1;
 
+    // ADR-0003: docs/adr/0003-mega-rag-centroid-decomposition.md
+    // Детерминированная генерация (mt19937(1337)) и плоский CSR в одном
+    // анонимном mmap: offsets[n+1] + edges[].
     explicit MegaRAGCentroidGraph(int n = 10000, int avg_degree = 6) : n_nodes(n) {
         tree_adj.resize(n);
         adj.resize(n);
@@ -92,12 +96,16 @@ struct MegaRAGCentroidGraph {
     MegaRAGCentroidGraph(const MegaRAGCentroidGraph&) = delete;
     MegaRAGCentroidGraph& operator=(const MegaRAGCentroidGraph&) = delete;
 
+    // ADR-0003: docs/adr/0003-mega-rag-centroid-decomposition.md
+    // Один munmap на весь регион: offsets и edges живут в одном mmap.
     ~MegaRAGCentroidGraph() {
         if (flat_adj_offsets != nullptr && flat_adj_offsets != MAP_FAILED) {
             ::munmap(flat_adj_offsets, mmap_bytes);
         }
     }
 
+    // ADR-0003: docs/adr/0003-mega-rag-centroid-decomposition.md
+    // Размеры поддеревьев текущей (ещё не удалённой) компоненты.
     void calc_sizes(int u, int p) {
         subtree_size[u] = 1;
         for (int nxt : tree_adj[u]) {
@@ -108,6 +116,8 @@ struct MegaRAGCentroidGraph {
         }
     }
 
+    // ADR-0003: docs/adr/0003-mega-rag-centroid-decomposition.md
+    // Центроид: все поддеревья не больше половины компоненты.
     int find_centroid(int u, int p, int comp_size) const {
         for (int nxt : tree_adj[u]) {
             if (nxt != p && !removed[nxt] && subtree_size[nxt] > comp_size / 2) {
@@ -117,6 +127,8 @@ struct MegaRAGCentroidGraph {
         return u;
     }
 
+    // ADR-0003: docs/adr/0003-mega-rag-centroid-decomposition.md
+    // Рекурсивная декомпозиция: centroid_parent / centroid_depth.
     void decompose(int u, int p, int depth) {
         calc_sizes(u, -1);
         int c = find_centroid(u, -1, subtree_size[u]);
@@ -132,11 +144,16 @@ struct MegaRAGCentroidGraph {
         }
     }
 
+    // ADR-0003: docs/adr/0003-mega-rag-centroid-decomposition.md
+    // Полная перестройка индекса; вызывается один раз при старте конвейера.
     void build_centroid_index() {
         std::fill(removed.begin(), removed.end(), 0);
         decompose(0, -1, 0);
     }
 
+    // ADR-0003: docs/adr/0003-mega-rag-centroid-decomposition.md
+    // O(1)-запрос: нормализация target_node, не более 4 шагов вверх по
+    // centroid_parent, без аллокаций.
     std::pair<int, int> locate_centroid_cluster(int target_node) const noexcept {
         if (n_nodes <= 0) return {0, 0};
         int cur = ((target_node % n_nodes) + n_nodes) % n_nodes;

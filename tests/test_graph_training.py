@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Deterministic tests for the graph training contract."""
+"""Deterministic tests for the graph training contract.
+
+ADR: docs/adr/0012-trainable-graph-contour.md, docs/adr/0013-benchmarks-and-verification.md
+"""
 
 from __future__ import annotations
 

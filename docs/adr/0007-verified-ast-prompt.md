@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модуль:** 6, `include/time_ray_ast.hpp` (`compile_verified_ast_prompt`)
+- **Модуль:** 6, [include/time_ray_ast.hpp](../../include/time_ray_ast.hpp) (`compile_verified_ast_prompt`)
 
 ## Контекст
 
@@ -78,9 +78,22 @@
 
 ## Ссылки
 
-- Реализация: `include/time_ray_ast.hpp`.
-- Использование: `src/engine_pipeline.cpp` (`infer`, `extract_features`).
-- FFI: `include/ae_c_api.h` (`ae_engine_get_last_ast`,
-  `ae_engine_get_last_trace`).
-- Тесты: `benchmarks/text_tasks.py` (`ast_contract`).
-- SLM-мост: `bindings/slm_bridge.py`.
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0007` и
+`docs/adr/0007-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0007
+```
+
+**Реализация:** [include/time_ray_ast.hpp](../../include/time_ray_ast.hpp)
+— `struct ASTPromptResult`, `compile_verified_ast_prompt`.
+
+- Использование: [src/engine_pipeline.cpp](../../src/engine_pipeline.cpp)
+  (`extract_features`, `infer`).
+- FFI: [include/ae_c_api.h](../../include/ae_c_api.h)
+  (`ae_engine_get_last_ast`, `ae_engine_get_last_trace`),
+  реализация — [src/ae_c_api.cpp](../../src/ae_c_api.cpp).
+- Тесты: [benchmarks/text_tasks.py](../../benchmarks/text_tasks.py) (`ast_contract`),
+  [tests/test_ae_core.cpp](../../tests/test_ae_core.cpp).
+- SLM-мост: [bindings/slm_bridge.py](../../bindings/slm_bridge.py).

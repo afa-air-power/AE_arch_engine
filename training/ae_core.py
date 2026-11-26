@@ -1,4 +1,7 @@
-"""Loader for the native AE core pybind11 module."""
+"""Loader for the native AE core pybind11 module.
+
+ADR: docs/adr/0011-c-abi-and-python-bindings.md
+"""
 
 from __future__ import annotations
 

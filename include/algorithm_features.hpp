@@ -2,6 +2,7 @@
 // ============================================================================
 // AE Arch Engine (AE::mind_v1.1_Stable)
 // Algorithm-derived feature vector for the trainable graph model
+// ADR: docs/adr/0012-trainable-graph-contour.md
 // ----------------------------------------------------------------------------
 // Признаки не придумываются заново: они снимаются с уже работающих модулей
 // ядра (Taylor-Intent Kernel, морфемный Patricia trie, центроидная
@@ -108,6 +109,7 @@ inline double popcount64(std::uint64_t value) noexcept {
 
 } // namespace feature_detail
 
+// ADR-0012: docs/adr/0012-trainable-graph-contour.md
 // Собирает вектор из сигналов, уже посчитанных алгоритмами ядра.
 inline AlgorithmFeatureVector build_algorithm_features(
     const std::array<float, TaylorIntentKernel::INTENT_DIM>& intent,

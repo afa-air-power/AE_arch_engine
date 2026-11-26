@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модуль:** 3.3, `include/mega_rag_centroid.hpp`
+- **Модуль:** 3.3, [include/mega_rag_centroid.hpp](../../include/mega_rag_centroid.hpp)
 
 ## Контекст
 
@@ -73,8 +73,21 @@
 
 ## Ссылки
 
-- Реализация: `include/mega_rag_centroid.hpp`.
-- Использование: `src/engine_pipeline.cpp` (`compute_core_signals`).
-- Тесты: `benchmarks/logic_tasks.py` (`centroid_lookup_bounds`),
-  `tests/test_ae_core.cpp`.
-- Бенчмарк: `src/main_bench.cpp`.
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0003` и
+`docs/adr/0003-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0003
+```
+
+**Реализация:** [include/mega_rag_centroid.hpp](../../include/mega_rag_centroid.hpp)
+— `struct MegaRAGCentroidGraph`, конструктор (генерация + CSR в `mmap`),
+деструктор (один `munmap`), `calc_sizes`, `find_centroid`, `decompose`,
+`build_centroid_index`, `locate_centroid_cluster`.
+
+- Использование: [src/engine_pipeline.cpp](../../src/engine_pipeline.cpp)
+  (построение индекса и запрос центроида в `compute_core_signals`).
+- Тесты: [benchmarks/logic_tasks.py](../../benchmarks/logic_tasks.py)
+  (`centroid_lookup_bounds`), [tests/test_ae_core.cpp](../../tests/test_ae_core.cpp).
+- Бенчмарк: [src/main_bench.cpp](../../src/main_bench.cpp).

@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модуль:** 4, `include/thought_graph.hpp`
+- **Модуль:** 4, [include/thought_graph.hpp](../../include/thought_graph.hpp)
 
 ## Контекст
 
@@ -72,10 +72,25 @@
 
 ## Ссылки
 
-- Реализация: `include/thought_graph.hpp`.
-- Использование: `src/engine_pipeline.cpp`, `include/time_ray_ast.hpp`,
-  `include/algorithm_features.hpp`.
-- Эталон: `benchmarks/logic_tasks.py` (`path_matches_bfs`,
-  `path_max_weight_matches_bruteforce`,
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0005` и
+`docs/adr/0005-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0005
+```
+
+**Реализация:** [include/thought_graph.hpp](../../include/thought_graph.hpp)
+— `struct ThoughtGraphTopology`, `Edge::operator<` (по убыванию веса),
+`DSU::find`/`DSU::unite`, `init_from_subgraph` (Краскал + BINUP), `dfs_lca`,
+`query_path_binup` (максимум), `reroot`, `query_path_min_binup` (bottleneck),
+`path_between`.
+
+- Использование: [src/engine_pipeline.cpp](../../src/engine_pipeline.cpp)
+  (единый список рёбер, `optimal_path`), [include/time_ray_ast.hpp](../../include/time_ray_ast.hpp),
+  [include/algorithm_features.hpp](../../include/algorithm_features.hpp).
+- Эталон: [benchmarks/logic_tasks.py](../../benchmarks/logic_tasks.py)
+  (`path_matches_bfs`, `path_max_weight_matches_bruteforce`,
   `path_min_weight_matches_bruteforce`, `reroot_preserves_paths`,
   `kruskal_maximum_spanning_tree`).
+- Контрактный тест: [tests/test_ae_core.cpp](../../tests/test_ae_core.cpp).

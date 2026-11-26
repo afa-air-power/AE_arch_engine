@@ -3,6 +3,7 @@
 // AE Arch Engine (AE::mind_v1.1_Stable)
 // Module 3.1: Taylor-Intent Kernel (150 neurons, 5th-order Taylor polynomials)
 // Author: Andrey Firstov (IU5 BMSTU)
+// ADR: docs/adr/0001-taylor-intent-kernel.md
 // ============================================================================
 
 #include <array>
@@ -11,7 +12,7 @@
 #include <random>
 
 namespace ae::mind {
-
+// ADR-0001: docs/adr/0001-taylor-intent-kernel.md
 struct TaylorIntentKernel {
     static constexpr std::size_t INPUT_DIM = 32;
     static constexpr std::size_t HIDDEN_DIM = 150;
@@ -22,6 +23,9 @@ struct TaylorIntentKernel {
     alignas(64) std::array<float, HIDDEN_DIM * INTENT_DIM> W2{};
     alignas(64) std::array<float, INTENT_DIM> b2{};
 
+    // ADR-0001: docs/adr/0001-taylor-intent-kernel.md
+    // Фиксированный seed и нормальная инициализация: интент входит в маску и
+    // признаки, поэтому веса не должны меняться между запусками.
     explicit TaylorIntentKernel(unsigned int seed = 42) {
         std::mt19937 rng(seed);
         std::normal_distribution<float> dist1(0.0f, 0.15f);
@@ -32,6 +36,8 @@ struct TaylorIntentKernel {
         for (auto& b : b2) b = 0.01f;
     }
 
+    // ADR-0001: docs/adr/0001-taylor-intent-kernel.md
+    // Ряд Тейлора 5-го порядка с насыщением на |x| > 1.5.
     static constexpr inline float taylor_tanh(float x) noexcept {
         if (x > 1.5f) return 0.905148f;
         if (x < -1.5f) return -0.905148f;
@@ -39,6 +45,8 @@ struct TaylorIntentKernel {
         return x * (1.0f - x2 * (0.33333334f - 0.13333334f * x2));
     }
 
+    // ADR-0001: docs/adr/0001-taylor-intent-kernel.md
+    // GELU через tanh-приближение, где tanh тоже полиномиальный.
     static constexpr inline float taylor_gelu(float x) noexcept {
         constexpr float SQRT_2_OVER_PI = 0.79788456f;
         constexpr float COEFF = 0.044715f;
@@ -46,6 +54,8 @@ struct TaylorIntentKernel {
         return 0.5f * x * (1.0f + taylor_tanh(inner));
     }
 
+    // ADR-0001: docs/adr/0001-taylor-intent-kernel.md
+    // Рабочий forward (32 -> 150 -> 16) без трансцендентных вызовов.
     inline std::array<float, INTENT_DIM> forward_taylor(
         const std::array<float, INPUT_DIM>& x) const noexcept {
         alignas(64) std::array<float, HIDDEN_DIM> hidden{};
@@ -70,6 +80,8 @@ struct TaylorIntentKernel {
         return out;
     }
 
+    // ADR-0001: docs/adr/0001-taylor-intent-kernel.md
+    // Эталон на std::tanh: только для сравнения и бенчмарка.
     inline std::array<float, INTENT_DIM> forward_transcendental(
         const std::array<float, INPUT_DIM>& x) const noexcept {
         alignas(64) std::array<float, HIDDEN_DIM> hidden{};

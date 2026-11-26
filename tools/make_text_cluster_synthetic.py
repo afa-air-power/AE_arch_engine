@@ -9,6 +9,8 @@ labels from drifting away from the feature representation.
 Splits: every synthetic sample is assigned to ``train``.  The manual waves
 (``text_clusters_manual*.json``) remain the held-out evaluation anchor, so
 adding synthetic data cannot leak into ``val``/``test``.
+
+ADR: docs/adr/0012-trainable-graph-contour.md
 """
 
 from __future__ import annotations

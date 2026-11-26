@@ -3,6 +3,7 @@
 // AE Arch Engine (AE::mind_v1.1_Stable)
 // Module 6.1: Natural-Language Verbalizer + Parser Round-Trip Verification
 // Author: Andrey Firstov (IU5 BMSTU)
+// ADR: docs/adr/0008-natural-language-round-trip.md
 //
 // Выход движка формируется на естественном языке из интент-вектора и
 // морфемной маски. Сгенерированный текст сразу возвращается в языковой парсер
@@ -27,7 +28,7 @@
 #include <vector>
 
 namespace ae::mind {
-
+// ADR-0008: docs/adr/0008-natural-language-round-trip.md
 // Отчёт обратного разбора: что именно парсер увидел в сгенерированном тексте.
 struct NaturalLanguageReport {
     std::string text;              // ответ на естественном языке
@@ -85,6 +86,8 @@ inline constexpr std::array<DomainLexeme, 20> kDomainLexemes{{
     {MorphemicPatriciaTrie::Semantic::ACTION,  "создание",      "transform", "анализ",     "build"},
 }};
 
+// ADR-0008: docs/adr/0008-natural-language-round-trip.md
+// Семантические кластеры маски: биты [28..47], по которым считается recall.
 inline std::uint64_t cluster_bits(std::uint64_t mask) noexcept {
     return mask & CLUSTER_WINDOW;
 }
@@ -118,6 +121,7 @@ inline std::string join_domains(const std::vector<int>& domains, bool ru) {
     return out;
 }
 
+// ADR-0008: docs/adr/0008-natural-language-round-trip.md
 // Ответ состоит из двух частей: перечисление подтверждённых доменов и
 // определения-предикаты. Каждое определение использует второе слово из того же
 // кластера, поэтому грамматика богаче, а маска не приобретает лишних доменов.
@@ -159,6 +163,8 @@ struct RoundTrip {
     lang::ParseResult parsed;
 };
 
+// ADR-0008: docs/adr/0008-natural-language-round-trip.md
+// ADR-0009: docs/adr/0009-language-parsers.md
 // Ключевая операция: сгенерированный текст возвращается в тот же языковой
 // парсер, которым разбирался запрос, и в морфемный триe движка.
 inline RoundTrip parse_back(std::string_view text,
@@ -205,6 +211,7 @@ inline std::string describe(std::string_view text, const RoundTrip& trip,
 
 } // namespace nl_detail
 
+// ADR-0008: docs/adr/0008-natural-language-round-trip.md
 // Строит ответ на естественном языке из интент-вектора и ожидаемой маски,
 // затем до трёх раз переразбирает его и дополняет потерянные домены.
 inline NaturalLanguageReport render_natural_language(

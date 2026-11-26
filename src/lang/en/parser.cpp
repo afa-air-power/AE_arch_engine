@@ -1,3 +1,4 @@
+// ADR: docs/adr/0009-language-parsers.md
 #include "lang/en/parser.hpp"
 
 #include "lang/detail/parser_detail.hpp"
@@ -45,6 +46,7 @@ ParseResult Parser::parse_callback(void* context, std::string_view text) {
     return static_cast<Parser*>(context)->parse_impl(text);
 }
 
+// ADR-0009: docs/adr/0009-language-parsers.md
 ParseResult Parser::parse_impl(std::string_view text) const {
     return detail::parse_words(text, Language::ENGLISH, prefixes, suffixes);
 }

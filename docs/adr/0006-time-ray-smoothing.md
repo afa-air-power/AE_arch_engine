@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модуль:** 3.5, `include/time_ray_ast.hpp` (`run_async_time_ray`)
+- **Модуль:** 3.5, [include/time_ray_ast.hpp](../../include/time_ray_ast.hpp) (`run_async_time_ray`)
 
 ## Контекст
 
@@ -79,7 +79,20 @@ forward += discount * weight; discount *= 0.85
 
 ## Ссылки
 
-- Реализация: `include/time_ray_ast.hpp`.
-- Вызов: `src/engine_pipeline.cpp` (`infer`, `extract_features`).
-- Признаки: `include/algorithm_features.hpp`, биты `[42..45]`.
-- Бенчмарк: `src/main_bench.cpp` (синхронный и `std::async` варианты).
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0006` и
+`docs/adr/0006-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0006
+```
+
+**Реализация:** [include/time_ray_ast.hpp](../../include/time_ray_ast.hpp)
+— `struct TimeRayReport`, `run_async_time_ray`.
+
+- Вызов: [src/engine_pipeline.cpp](../../src/engine_pipeline.cpp)
+  (`extract_features` — синхронно, `infer`, `std::async`).
+- Признаки: [include/algorithm_features.hpp](../../include/algorithm_features.hpp),
+  биты `[42..45]`; wall-clock заменён средним весом ребра.
+- Бенчмарк: [src/main_bench.cpp](../../src/main_bench.cpp)
+  (полный `infer`; синхронный режим включается флагом `run_time_ray_async = false`).

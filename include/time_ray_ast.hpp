@@ -3,6 +3,7 @@
 // AE Arch Engine (AE::mind_v1.1_Stable)
 // Modules 3.5 & 6: Async Time-Ray Smoothing + Verified AST-Prompt Compiler
 // Author: Andrey Firstov (IU5 BMSTU)
+// ADR: docs/adr/0006-time-ray-smoothing.md, docs/adr/0007-verified-ast-prompt.md
 // ============================================================================
 
 #include "thought_graph.hpp"
@@ -17,7 +18,7 @@
 #include <vector>
 
 namespace ae::mind {
-
+// ADR-0006: docs/adr/0006-time-ray-smoothing.md
 struct TimeRayReport {
     double forward_cascade_score = 0.0;
     double backward_consistency_score = 0.0;
@@ -25,6 +26,9 @@ struct TimeRayReport {
     double elapsed_us = 0.0;
 };
 
+// ADR-0006: docs/adr/0006-time-ray-smoothing.md
+// Forward cascade с дисконтом 0.85 + backward consistency через max-вес
+// перехода. elapsed_us только в отчёте и не входит в признаки (ADR-0012).
 inline TimeRayReport run_async_time_ray(
     const std::vector<int>& path,
     const ThoughtGraphTopology& tg,
@@ -61,13 +65,16 @@ inline TimeRayReport run_async_time_ray(
     double us = duration<double, std::micro>(t1 - t0).count();
     return {forward_score, backward_score, pruned, us};
 }
-
+// ADR-0007: docs/adr/0007-verified-ast-prompt.md
 struct ASTPromptResult {
     std::string ast_text;
     std::size_t estimated_tokens;
     std::string explainable_trace;
 };
 
+// ADR-0007: docs/adr/0007-verified-ast-prompt.md
+// S-выражение AE_VERIFIED_AST_V1.1: только узлы optimal_path, проверенные
+// parent_id/depth/веса, детерминированная ссылка fact_ref.
 inline ASTPromptResult compile_verified_ast_prompt(
     std::string_view query,
     int centroid_id,

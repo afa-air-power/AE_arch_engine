@@ -1,3 +1,4 @@
+// ADR: docs/adr/0011-c-abi-and-python-bindings.md
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include "../include/engine_pipeline.hpp"

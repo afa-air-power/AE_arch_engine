@@ -3,6 +3,7 @@
 // AE Arch Engine (AE::mind_v1.1_Stable)
 // Module 3.2: Morphemic Tokenizer Compiler (Patricia Trie + 64-bit Boolean Mask)
 // Author: Andrey Firstov (IU5 BMSTU)
+// ADR: docs/adr/0002-morphemic-patricia-trie.md
 // ----------------------------------------------------------------------------
 // Битовая раскладка 64-битной маски сочетаемости:
 //   [ 0.. 7]  базовые домены смысла  (Dinitz semantic_tag 0..7, всегда активны)
@@ -22,7 +23,7 @@
 #include <vector>
 
 namespace ae::mind {
-
+// ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
 struct MorphemicPatriciaTrie {
     enum class MorphemeType : std::uint8_t {
         PREFIX = 0,
@@ -63,7 +64,7 @@ struct MorphemicPatriciaTrie {
     // инвентарь занимает диапазон начиная с FIRST_BUILTIN_ID, поэтому
     // пользовательские идентификаторы не перетирают встроенные морфемы.
     static constexpr int FIRST_BUILTIN_ID = 256;
-
+    // ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
     static constexpr std::uint64_t type_mask(MorphemeType type) noexcept {
         return 1ULL << (24 + static_cast<unsigned>(type));
     }
@@ -76,6 +77,7 @@ struct MorphemicPatriciaTrie {
         return BASE_MASK | type_mask(type) | cluster_mask(cluster);
     }
 
+    // ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
     // Результат разбора: маска сочетаемости, число найденных морфем и
     // поддержка каждого семантического кластера. Поддержка — это число
     // морфем в запросе, которые несут данный кластерный бит. Маска хранит
@@ -221,6 +223,8 @@ struct MorphemicPatriciaTrie {
         return false;
     }
 
+    // ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
+    // Привязка морфемы к узлу; ff-идентификаторы 0..255 зарезервированы.
     void bind_node(int node_index, int id, MorphemeType type, std::uint64_t mask) noexcept {
         Node& node = nodes[node_index];
         if (node.morpheme_id == -1) {
@@ -234,6 +238,8 @@ struct MorphemicPatriciaTrie {
         }
     }
 
+    // ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
+    // Вставка в сжатый бор: ребро хранит метку целиком, а не один символ.
     void insert(std::string_view word, int id, MorphemeType type, std::uint64_t mask) {
         if (dictionary.size() <= static_cast<std::size_t>(id)) {
             dictionary.resize(id + 1);
@@ -289,6 +295,7 @@ struct MorphemicPatriciaTrie {
     }
 
     // ------------------------------------------------------------ seeding tables
+    // ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
     void seed_roots(Semantic cluster,
                     std::initializer_list<std::string_view> forms) {
         for (std::string_view form : forms) {
@@ -307,6 +314,8 @@ struct MorphemicPatriciaTrie {
     }
 
     // --------------------------------------------------------- русский инвентарь
+    // ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
+    // Встроенный инвентарь: 1028 русских морфем, идентификаторы с 256.
     void seed_russian_inventory() {
         // -- приставки ---------------------------------------------------------
         seed_affixes(MorphemeType::PREFIX, {
@@ -570,6 +579,8 @@ struct MorphemicPatriciaTrie {
     }
 
     // --------------------------------------------------------- английский инвентарь
+    // ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
+    // Встроенный инвентарь: 776 английских морфем в том же пространстве.
     void seed_english_inventory() {
         // -- приставки ---------------------------------------------------------
         seed_affixes(MorphemeType::PREFIX, {
@@ -905,7 +916,7 @@ struct MorphemicPatriciaTrie {
                token_in_list(text, begin, end, kPrepositions) ||
                token_in_list(text, begin, end, kDeterminers);
     }
-
+    // ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
     static const CompoundRule* match_compound(std::string_view text,
                                                std::size_t begin,
                                                std::size_t end) noexcept {
@@ -926,6 +937,10 @@ struct MorphemicPatriciaTrie {
         return nullptr;
     }
 
+    // ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
+    // ADR-0001: docs/adr/0001-taylor-intent-kernel.md (биты intent [16..23])
+    // Пословный жадный longest-match: самая длинная морфема с текущей позиции,
+    // неизвестный участок обрывает цепочку слова.
     __attribute__((noinline)) MorphemeAnalysis compile_morpheme_analysis(
         std::string_view text, const std::array<float, 16>& intent) const noexcept {
         MorphemeAnalysis analysis;
@@ -1005,6 +1020,8 @@ struct MorphemicPatriciaTrie {
         return analysis;
     }
 
+    // ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
+    // ADR-0012: docs/adr/0012-trainable-graph-contour.md (поддержка кластеров)
     // Строит дерево предложения: чанки по пунктуации/союзам, в каждом чанке
     // голова (последнее содержательное слово) и зависимые служебные слова.
     // Поддержка кластеров считается по поддереву чанка, поэтому локальная
@@ -1240,6 +1257,8 @@ struct MorphemicPatriciaTrie {
         return out;
     }
 
+    // ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
+    // Совместимый фасад: маска + число морфем (без счётчиков кластеров).
     std::pair<std::uint64_t, int> compile_morpheme_mask(
         std::string_view text, const std::array<float, 16>& intent) const noexcept {
         const MorphemeAnalysis analysis = compile_morpheme_analysis(text, intent);

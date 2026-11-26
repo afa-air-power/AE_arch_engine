@@ -1,3 +1,4 @@
+// ADR: docs/adr/0010-unified-pipeline.md
 #include "engine_pipeline.hpp"
 
 #include <chrono>
@@ -28,6 +29,8 @@ std::size_t count_words(std::string_view text) noexcept {
 
 } // namespace
 
+// ADR-0010: docs/adr/0010-unified-pipeline.md
+// Единый источник топологии: граф мыслей и сеть Диница строятся из одного
 AEEnginePipeline::AEEnginePipeline(int rag_nodes, int rag_avg_degree)
     : intent_kernel_(42),
       trie_(),
@@ -113,16 +116,21 @@ AEEnginePipeline::AEEnginePipeline(int rag_nodes, int rag_avg_degree)
     }
 }
 
+// ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
+// ADR-0011: docs/adr/0011-c-abi-and-python-bindings.md
 void AEEnginePipeline::add_morpheme(std::string_view word, int id,
                                     MorphemicPatriciaTrie::MorphemeType type,
                                     std::uint64_t compatibility_mask) {
     trie_.insert(word, id, type, compatibility_mask);
 }
 
+// ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
 void AEEnginePipeline::reroot_thought_graph(int new_root) noexcept {
     thought_graph_.reroot(new_root);
 }
 
+// ADR-0010: docs/adr/0010-unified-pipeline.md
+// ADR-0001/0002/0003/0004/0005: последовательность сигналов ядра.
 CoreSignals AEEnginePipeline::compute_core_signals(std::string_view query,
                                                    int target_hint) {
     using namespace std::chrono;
@@ -178,6 +186,9 @@ CoreSignals AEEnginePipeline::compute_core_signals(std::string_view query,
     return signals;
 }
 
+// ADR-0012: docs/adr/0012-trainable-graph-contour.md
+// ADR-0006: docs/adr/0006-time-ray-smoothing.md (синхронный режим для признаков)
+// ADR-0008: docs/adr/0008-natural-language-round-trip.md
 AlgorithmFeatureVector AEEnginePipeline::extract_features(std::string_view query,
                                                           int target_hint) {
     CoreSignals signals = compute_core_signals(query, target_hint);
@@ -232,6 +243,10 @@ AlgorithmFeatureVector AEEnginePipeline::extract_features(std::string_view query
         ast.estimated_tokens);
 }
 
+// ADR-0010: docs/adr/0010-unified-pipeline.md
+// ADR-0006: docs/adr/0006-time-ray-smoothing.md (std::async в infer)
+// ADR-0007: docs/adr/0007-verified-ast-prompt.md
+// ADR-0008: docs/adr/0008-natural-language-round-trip.md
 InferenceResult AEEnginePipeline::infer(std::string_view query,
                                         int target_hint,
                                         bool run_time_ray_async) {

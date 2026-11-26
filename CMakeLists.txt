@@ -1,3 +1,4 @@
+# ADR: docs/adr/0014-build-portability-and-hip.md
 cmake_minimum_required(VERSION 3.20)
 project(AEArchEngine
     VERSION 1.1.0

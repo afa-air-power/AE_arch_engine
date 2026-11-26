@@ -1,4 +1,7 @@
-"""Run every benchmark suite and emit one JSON report."""
+"""Run every benchmark suite and emit one JSON report.
+
+ADR: docs/adr/0013-benchmarks-and-verification.md
+"""
 
 from __future__ import annotations
 

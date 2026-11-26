@@ -1,4 +1,7 @@
-"""AE Arch Engine (AE::mind1_v1.1_Stable) — Python SDK & Zero-Dependency Ctypes Wrapper."""
+"""AE Arch Engine (AE::mind1_v1.1_Stable) — Python SDK & Zero-Dependency Ctypes Wrapper.
+
+ADR: docs/adr/0011-c-abi-and-python-bindings.md
+"""
 
 from __future__ import annotations
 
@@ -65,6 +68,8 @@ class AEInferenceOutput:
 
 
 class AEArchEngine:
+    """Python SDK over the pure C ABI (ADR-0011)."""
+
     MORPHEME_PREFIX = 0
     MORPHEME_ROOT = 1
     MORPHEME_SUFFIX = 2
@@ -76,6 +81,8 @@ class AEArchEngine:
         rag_avg_degree: int = 6,
         lib_path: Optional[str | pathlib.Path] = None,
     ) -> None:
+        # ADR-0011: docs/adr/0011-c-abi-and-python-bindings.md
+        # libae_mind1.so + ctypes; pybind11 не требуется.
         self._lib_path = self._resolve_lib_path(lib_path)
         self._lib = ctypes.CDLL(str(self._lib_path))
         self._configure_signatures()
@@ -139,6 +146,7 @@ class AEArchEngine:
         morpheme_type: int = MORPHEME_ROOT,
         compatibility_mask: int = 0xFFFFFFFFFFFFFFF,
     ) -> None:
+        # ADR-0002: docs/adr/0002-morphemic-patricia-trie.md
         self._lib.ae_engine_add_morpheme(
             self._handle,
             word.encode("utf-8"),
@@ -148,9 +156,12 @@ class AEArchEngine:
         )
 
     def reroot(self, new_root: int) -> None:
+        # ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
         self._lib.ae_engine_reroot(self._handle, int(new_root))
 
     def infer(self, query: str, target_hint: int = -1) -> AEInferenceOutput:
+        # ADR-0010: docs/adr/0010-unified-pipeline.md
+        # ADR-0011: docs/adr/0011-c-abi-and-python-bindings.md
         metrics = _CAEInferenceMetrics()
         rc = self._lib.ae_engine_infer(
             self._handle,

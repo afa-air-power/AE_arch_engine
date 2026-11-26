@@ -3,6 +3,8 @@
 
 Labels follow the thought-graph chain order:
 0 GRAPH, 1 KNOW, 2 FLOW, 3 TEXT, 4 NUM, 5 COMPUTE, 6 MIND, 7 NET, 8 ACTION.
+
+ADR: docs/adr/0012-trainable-graph-contour.md
 """
 
 from __future__ import annotations

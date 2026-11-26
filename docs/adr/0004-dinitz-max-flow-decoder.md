@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модуль:** 3.4, `include/dinitz_decoder.hpp`
+- **Модуль:** 3.4, [include/dinitz_decoder.hpp](../../include/dinitz_decoder.hpp)
 
 ## Контекст
 
@@ -77,8 +77,22 @@
 
 ## Ссылки
 
-- Реализация: `include/dinitz_decoder.hpp`.
-- Топология и теги: `src/engine_pipeline.cpp`.
-- Эталон: `benchmarks/logic_tasks.py` (`dinitz_matches_edmonds_karp`,
-  `flow_bottleneck_invariants`).
-- Бенчмарк: `src/main_bench.cpp`.
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0004` и
+`docs/adr/0004-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0004
+```
+
+**Реализация:** [include/dinitz_decoder.hpp](../../include/dinitz_decoder.hpp)
+— `struct DinitzGraphDecoder` (`MAX_V=128`, `MAX_E=1024`), `add_static_edge`
+(пара `e`/`e^1`), `apply_boolean_mask_and_reset`, `bfs` (слоистая сеть),
+`dfs` (блокирующий поток), `max_flow`, `extract_optimal_thought_path`.
+
+- Топология и теги: [src/engine_pipeline.cpp](../../src/engine_pipeline.cpp)
+  (конструктор, `add_static_edge`, гейтирование маской).
+- Эталон: [benchmarks/logic_tasks.py](../../benchmarks/logic_tasks.py)
+  (`edmonds_karp` и набор задач).
+- Контрактный тест: [tests/test_ae_core.cpp](../../tests/test_ae_core.cpp).
+- Бенчмарк: [src/main_bench.cpp](../../src/main_bench.cpp).

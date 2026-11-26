@@ -1,4 +1,5 @@
 #pragma once
+// ADR: docs/adr/0009-language-parsers.md
 
 #include <cstddef>
 #include <string>
@@ -65,6 +66,8 @@ struct ParseResult {
     LanguageFamily family = LanguageFamily::HUMAN;
 };
 
+// ADR-0009: docs/adr/0009-language-parsers.md
+// Единый интерфейс парсеров: конвейер не зависит от конкретного языка.
 class LanguageInterface {
 public:
     virtual ~LanguageInterface() = default;
@@ -72,7 +75,7 @@ public:
     virtual Language language() const noexcept = 0;
     virtual LanguageFamily family() const noexcept = 0;
 };
-
+// ADR-0009: docs/adr/0009-language-parsers.md
 class Parser : public LanguageInterface {
 public:
     using ParseCallback = ParseResult (*)(void*, std::string_view);
@@ -101,7 +104,11 @@ private:
     LanguageFamily family_;
 };
 
+// ADR-0009: docs/adr/0009-language-parsers.md
+// RU/EN определяется по числу кириллических и латинских байтов.
 Language detect_language(std::string_view text) noexcept;
+// ADR-0009: docs/adr/0009-language-parsers.md
+// Маршрутизация по тексту и по семейству; SCIENCE/VERBAL пока возвращают nullptr.
 Parser* select_parser(std::string_view text) noexcept;
 LanguageInterface* select_parser(
     LanguageFamily family,

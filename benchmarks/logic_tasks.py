@@ -3,6 +3,8 @@
 Every task compares a core algorithm against an independent brute-force
 reference implemented here, so a regression in the C++ code fails the metric
 instead of silently changing behavior.
+
+ADR: docs/adr/0013-benchmarks-and-verification.md
 """
 
 from __future__ import annotations
@@ -39,6 +41,7 @@ class TaskResult:
         }
 
 
+# ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
 def mst_weight_map(tg) -> dict[tuple[int, int], int]:
     weights: dict[tuple[int, int], int] = {}
     for node in range(tg.n):
@@ -48,6 +51,7 @@ def mst_weight_map(tg) -> dict[tuple[int, int], int]:
     return weights
 
 
+# ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
 def bfs_path(adjacency: dict[int, list[int]], source: int, target: int) -> list[int]:
     parent = {source: source}
     queue = deque([source])
@@ -71,6 +75,7 @@ def adjacency_lists(tg) -> dict[int, list[int]]:
     return {node: [neighbor for neighbor, _ in tg.adj_mst[node]] for node in range(tg.n)}
 
 
+# ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
 def kruskal_max_weight(n: int, edges: list[tuple[int, int, int]]) -> tuple[int, int]:
     parent = list(range(n))
 
@@ -91,6 +96,8 @@ def kruskal_max_weight(n: int, edges: list[tuple[int, int, int]]) -> tuple[int, 
     return used, total
 
 
+# ADR-0004: docs/adr/0004-dinitz-max-flow-decoder.md
+# Независимый эталон для dinitz_matches_edmonds_karp.
 def edmonds_karp(n: int, edges: list[tuple[int, int, int]], source: int, sink: int) -> int:
     capacity = [[0] * n for _ in range(n)]
     for u, v, cap in edges:
@@ -121,6 +128,7 @@ def edmonds_karp(n: int, edges: list[tuple[int, int, int]], source: int, sink: i
         flow += bottleneck
 
 
+# ADR-0013: docs/adr/0013-benchmarks-and-verification.md
 def run(rag_nodes: int = 20000, seed: int = 42, pairs: int = 200) -> dict[str, Any]:
     core = load_core()
     engine = core.AEEnginePipeline(rag_nodes, 6)

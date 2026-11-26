@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модуль:** 3.1, `include/taylor_intent_kernel.hpp`
+- **Модуль:** 3.1, [include/taylor_intent_kernel.hpp](../../include/taylor_intent_kernel.hpp)
 
 ## Контекст
 
@@ -74,7 +74,22 @@
 
 ## Ссылки
 
-- Реализация: `include/taylor_intent_kernel.hpp`.
-- Использование: `src/engine_pipeline.cpp` (`compute_core_signals`).
-- Признаки: `include/algorithm_features.hpp`, биты `[0..15]`.
-- Бенчмарк: `src/main_bench.cpp`.
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0001` и
+`docs/adr/0001-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0001
+```
+
+**Реализация:** [include/taylor_intent_kernel.hpp](../../include/taylor_intent_kernel.hpp)
+— `struct TaylorIntentKernel`, конструктор с seed `42` и `σ = 0.15/0.10`,
+`taylor_tanh` (ряд 5-го порядка), `taylor_gelu`, `forward_taylor`,
+`forward_transcendental` (эталон).
+
+- Использование: [src/engine_pipeline.cpp](../../src/engine_pipeline.cpp)
+  (`compute_core_signals`), [include/algorithm_features.hpp](../../include/algorithm_features.hpp)
+  (биты `[0..15]`), [include/morphemic_trie.hpp](../../include/morphemic_trie.hpp)
+  (`compile_morpheme_analysis`, intent-биты маски).
+- Бенчмарк: [src/main_bench.cpp](../../src/main_bench.cpp).
+- Тест приближения: [tests/test_ae_core.cpp](../../tests/test_ae_core.cpp).

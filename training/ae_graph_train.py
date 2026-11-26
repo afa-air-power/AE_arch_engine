@@ -5,6 +5,8 @@ contract and CPU reference deterministic on machines where ROCm/PyTorch is not
 available.  The graph algorithms remain first-class features: Dinitz-like
 features, MST bottlenecks, centroid hops, and path statistics are accepted as
 edge/node features rather than discarded by the learned model.
+
+ADR: docs/adr/0012-trainable-graph-contour.md
 """
 
 from __future__ import annotations
@@ -18,6 +20,7 @@ from typing import Iterable
 import numpy as np
 
 
+# ADR-0012: docs/adr/0012-trainable-graph-contour.md
 @dataclass
 class GraphDataset:
     node_features: np.ndarray
@@ -53,6 +56,8 @@ class GraphDataset:
         return inv_sqrt[:, None] * a * inv_sqrt[None, :]
 
 
+# ADR-0012: docs/adr/0012-trainable-graph-contour.md
+# Â = D^{-1/2}(A + I)D^{-1/2}; при пустом графе агрегация тождественна.
 class GraphSAGEClassifier:
     """Two-layer mean-aggregation classifier with explicit backward pass."""
 
@@ -165,6 +170,7 @@ def _metrics(predictions, labels, indices):
     return {"accuracy": accuracy, "macro_f1": float(np.mean(f1_values)) if f1_values else 0.0}
 
 
+# ADR-0012: docs/adr/0012-trainable-graph-contour.md (Adam, early stopping по F1)
 def train(dataset: GraphDataset, epochs=100, learning_rate=1e-2, hidden_dim=32, seed=42, checkpoint=None, weight_decay=0.0, patience=0):
     classes = int(dataset.labels.max()) + 1
     model = GraphSAGEClassifier(dataset.node_features.shape[1], hidden_dim, classes, seed)
@@ -236,11 +242,13 @@ def train(dataset: GraphDataset, epochs=100, learning_rate=1e-2, hidden_dim=32, 
     return model, history
 
 
+# ADR-0012: docs/adr/0012-trainable-graph-contour.md
 def evaluate(model, dataset: GraphDataset):
     pred = model.predict(dataset.node_features, dataset.normalized_adjacency())
     return {name: _metrics(pred, dataset.labels, np.flatnonzero(dataset.split == name)) for name in ("train", "val", "test")}
 
 
+# ADR-0012: docs/adr/0012-trainable-graph-contour.md
 def stratified_folds(labels: np.ndarray, folds: int, seed: int = 42) -> np.ndarray:
     """Stratified fold assignment so every fold sees every class."""
     rng = np.random.default_rng(seed)
@@ -253,6 +261,7 @@ def stratified_folds(labels: np.ndarray, folds: int, seed: int = 42) -> np.ndarr
     return assignment
 
 
+# ADR-0012: docs/adr/0012-trainable-graph-contour.md
 def cross_validate(dataset: GraphDataset, folds: int = 5, epochs: int = 200,
                    learning_rate: float = 1e-2, hidden_dim: int = 0,
                    weight_decay: float = 1e-3, seed: int = 42) -> dict:

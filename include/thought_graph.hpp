@@ -3,6 +3,7 @@
 // AE Arch Engine (AE::mind_v1.1_Stable)
 // Module 4: Thought Graph Topology (Kruskal DSU + BINUP LCA + Dynamic Reroot)
 // Author: Andrey Firstov (IU5 BMSTU)
+// ADR: docs/adr/0005-thought-graph-mst-lca.md
 // ============================================================================
 
 #include <algorithm>
@@ -12,11 +13,13 @@
 #include <vector>
 
 namespace ae::mind {
-
+// ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
 struct ThoughtGraphTopology {
     struct Edge {
         int u, v, weight, id;
         std::uint8_t tag;
+        // ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
+        // Сортировка по убыванию веса — основа максимумного остовного дерева.
         bool operator<(const Edge& other) const noexcept {
             return weight > other.weight;
         }
@@ -27,10 +30,13 @@ struct ThoughtGraphTopology {
         explicit DSU(int n) : parent(n) {
             std::iota(parent.begin(), parent.end(), 0);
         }
+        // ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
+        // DSU с path compression; на 64 узлах union by rank не нужен.
         int find(int i) noexcept {
             if (parent[i] == i) return i;
             return parent[i] = find(parent[i]);
         }
+        // ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
         bool unite(int i, int j) noexcept {
             int root_i = find(i);
             int root_j = find(j);
@@ -55,6 +61,9 @@ struct ThoughtGraphTopology {
 
     static constexpr int kInfWeight = 1'000'000;
 
+    // ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
+    // ADR-0010: docs/adr/0010-unified-pipeline.md
+    // Краскал по убыванию веса: MST в adj_mst, хорды в adj_horiz; затем BINUP.
     void init_from_subgraph(int num_nodes, const std::vector<Edge>& edges) {
         n = num_nodes;
         log_n = 1;
@@ -94,6 +103,8 @@ struct ThoughtGraphTopology {
         dfs_lca(current_root, current_root, 0, 0);
     }
 
+    // ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
+    // Итеративное заполнение up/max_edge/min_edge по слоям (BINUP).
     void dfs_lca(int u, int p, int w, int d) noexcept {
         depth[u] = d;
         up[u][0] = p;
@@ -114,6 +125,8 @@ struct ThoughtGraphTopology {
         }
     }
 
+    // ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
+    // Возвращает LCA и МАКСИМАЛЬНЫЙ вес на пути (верхняя оценка для AST).
     std::pair<int, int> query_path_binup(int u, int v) const noexcept {
         int res = 0;
         if (depth[u] < depth[v]) std::swap(u, v);
@@ -139,12 +152,15 @@ struct ThoughtGraphTopology {
         return {up[u][0], res};
     }
 
+    // ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
+    // Смена корня без пересборки рёбер: полный пересчёт BINUP от new_root.
     void reroot(int new_root) noexcept {
         if (new_root < 0 || new_root >= n || new_root == current_root) return;
         current_root = new_root;
         dfs_lca(current_root, current_root, 0, 0);
     }
 
+    // ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
     // Минимальный вес ребра на пути u..v (настоящий bottleneck, в отличие от
     // query_path_binup, который возвращает максимум).
     std::pair<int, int> query_path_min_binup(int u, int v) const noexcept {
@@ -172,6 +188,8 @@ struct ThoughtGraphTopology {
         return {up[u][0], res};
     }
 
+    // ADR-0005: docs/adr/0005-thought-graph-mst-lca.md
+    // ADR-0010: docs/adr/0010-unified-pipeline.md
     // Последовательность вершин единственного пути в остовном дереве: от u до v.
     std::vector<int> path_between(int u, int v) const {
         std::vector<int> left;

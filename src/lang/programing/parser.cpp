@@ -1,3 +1,4 @@
+// ADR: docs/adr/0009-language-parsers.md
 #include "lang/programing/parser.hpp"
 
 #include <array>
@@ -262,6 +263,8 @@ Parser::Parser() noexcept
     return static_cast<Parser*>(context)->parse_impl(text);
 }
 
+// ADR-0009: docs/adr/0009-language-parsers.md
+// Программный парсер: токены -> MeaningNode (документ/функции/блоки/лексемы).
 ::ae::lang::ParseResult Parser::parse_impl(std::string_view text) const {
     const std::vector<Token> tokens = tokenize(text);
     TreeBuilder builder(text, tokens);

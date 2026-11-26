@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Regression thresholds for the logic and text benchmark suites."""
+"""Regression thresholds for the logic and text benchmark suites.
+
+ADR: docs/adr/0013-benchmarks-and-verification.md
+"""
 
 from __future__ import annotations
 

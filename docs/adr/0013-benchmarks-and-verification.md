@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модули:** `benchmarks/`, `tests/`
+- **Модули:** [benchmarks/](../../benchmarks/), [tests/](../../tests/)
 
 ## Контекст
 
@@ -91,9 +91,30 @@
 
 ## Ссылки
 
-- Логические задачи: `benchmarks/logic_tasks.py`.
-- Текстовые задачи: `benchmarks/text_tasks.py`.
-- Сводный запуск: `benchmarks/run_all.py`.
-- C++/Python тесты: `tests/`.
-- Отчёт: `reports/benchmarks.json`.
-- Документация: `docs/TRAINING.md`, раздел «Предметные метрики».
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0013` и
+`docs/adr/0013-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0013
+```
+
+**Логические задачи** — [benchmarks/logic_tasks.py](../../benchmarks/logic_tasks.py):
+эталонные реализации `mst_weight_map`, `bfs_path`, `kruskal_max_weight`,
+`edmonds_karp` и запуск задач.
+
+**Текстовые задачи** — [benchmarks/text_tasks.py](../../benchmarks/text_tasks.py):
+`clusters_of`, `prf` и запуск `run`.
+
+**Сводный запуск:** [benchmarks/run_all.py](../../benchmarks/run_all.py).
+
+**C++/Python тесты:** [tests/test_ae_core.cpp](../../tests/test_ae_core.cpp),
+[tests/test_features.py](../../tests/test_features.py),
+[tests/test_bindings.py](../../tests/test_bindings.py),
+[tests/test_graph_training.py](../../tests/test_graph_training.py),
+[tests/test_benchmarks.py](../../tests/test_benchmarks.py),
+[tests/test_corpus.py](../../tests/test_corpus.py).
+
+- Бенчмарк ядра: [src/main_bench.cpp](../../src/main_bench.cpp).
+- Отчёт: [reports/benchmarks.json](../../reports/benchmarks.json).
+- Документация: [docs/TRAINING.md](../TRAINING.md), раздел «Предметные метрики».

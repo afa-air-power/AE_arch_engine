@@ -2,7 +2,7 @@
 
 - **Статус:** Accepted
 - **Дата:** 2026-11-19
-- **Модуль:** `include/engine_pipeline.hpp`, `src/engine_pipeline.cpp`
+- **Модуль:** [include/engine_pipeline.hpp](../../include/engine_pipeline.hpp), [src/engine_pipeline.cpp](../../src/engine_pipeline.cpp)
 
 ## Контекст
 
@@ -78,10 +78,27 @@
 
 ## Ссылки
 
-- Реализация: `include/engine_pipeline.hpp`, `src/engine_pipeline.cpp`.
-- Потребители: `src/main_bench.cpp`, `src/ae_c_api.cpp`,
-  `bindings/ae_engine.py`.
-- Тесты: `tests/test_ae_core.cpp`, `benchmarks/text_tasks.py`
+Точные места в коде ищутся grep-скриптом по маркерам `ADR-0010` и
+`docs/adr/0010-…`; номера строк в документации не фиксируются и не
+устаревают при сдвиге кода:
+
+```bash
+docs/adr/find.sh 0010
+```
+
+**Реализация:** [include/engine_pipeline.hpp](../../include/engine_pipeline.hpp),
+[src/engine_pipeline.cpp](../../src/engine_pipeline.cpp)
+— `struct CoreSignals`, `class AEEnginePipeline`, конструктор (единый `topology`),
+`compute_core_signals`, `extract_features`, `infer`.
+
+Ключевые шаги `compute_core_signals`: интент, маска, центроид, поток,
+`optimal_path`, `latency_us`.
+
+- Потребители: [src/main_bench.cpp](../../src/main_bench.cpp),
+  [src/ae_c_api.cpp](../../src/ae_c_api.cpp),
+  [bindings/ae_engine.py](../../bindings/ae_engine.py).
+- Тесты: [tests/test_ae_core.cpp](../../tests/test_ae_core.cpp),
+  [benchmarks/text_tasks.py](../../benchmarks/text_tasks.py)
   (`ast_contract`, `deterministic_output`).
-- Документация: `docs/README.md`, раздел «Топология графа мыслей и поток
-  Диница».
+- Документация: [docs/README.md](../README.md), раздел «Топология графа мыслей
+  и поток Диница».
